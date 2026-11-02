@@ -1,0 +1,24 @@
+# Journal local de Claude (ne jamais pousser)
+.claude/
+
+# Dépôt séparé, géré à part
+laravel-babel/
+
+# Systèmes et éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dépendances et builds (projets Laravel / Angular à venir)
+/vendor/
+/node_modules/
+/dist/
+/public/build/
+/storage/*.key
+
+# Secrets et fichiers d'environnement
+.env
+.env.*
+!.env.example
+*.key
