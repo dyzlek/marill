@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\HasardController;
 use App\Http\Controllers\Api\IdentiteController;
 use App\Http\Controllers\Api\JetonController;
+use App\Http\Controllers\Api\MarquePageController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\RechercheController;
 use App\Http\Controllers\Api\UtilisateurCourantController;
@@ -22,6 +23,12 @@ Route::name('api.')->group(function () {
     // contre qui essaierait des mots de passe à la chaîne (429 au-delà, ERR_TOO_MANY_REQUESTS).
     Route::post('tokens', [JetonController::class, 'store'])->middleware('throttle:5,1')->name('tokens.store');
     Route::delete('tokens/courant', [JetonController::class, 'destroy'])->middleware('auth:sanctum')->name('tokens.destroy');
+
+    // Marque-pages du membre connecté (M2, M3, M13). auth:sanctum et les Policies sont déclarés sur le
+    // contrôleur (attributs #[Middleware] et #[Authorize]). Pas de modification : le CDC n'en prévoit pas.
+    Route::apiResource('marque-pages', MarquePageController::class)
+        ->only(['index', 'store', 'show', 'destroy'])
+        ->parameters(['marque-pages' => 'marquePage']);
 
     // Lecture publique (V1, B1). Une adresse ne contient pas de « / » : le paramètre par défaut ([^/]+) suffit.
     // Le chemin exact sera fixé par le contrat d'API commun.

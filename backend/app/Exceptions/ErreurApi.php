@@ -35,6 +35,9 @@ final class ErreurApi extends Exception
         // d'API commun (« inscriptions fermées, accès refusé… »).
         'ERR_INVALID_CREDENTIALS' => 401,
         'ERR_REGISTRATION_CLOSED' => 403,
+        // Marque-pages (issue #18, règle 7). 409 Conflict : la requête est bien formée, mais elle contredit
+        // l'état actuel (la page est déjà gardée). Code provisoire, comme les deux précédents.
+        'ERR_ALREADY_BOOKMARKED' => 409,
     ];
 
     /** @param  list<array{code: string, champ: ?string, message: string}>  $erreurs */

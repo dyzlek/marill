@@ -1,0 +1,26 @@
+meta {
+  name: Mes marque-pages
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/marque-pages
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("200, le plus récent en premier", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().data[0].id).to.equal(bru.getVar("marquePageId"));
+  });
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Retirer
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/marque-pages/{{marquePageId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("204", function () {
+    expect(res.getStatus()).to.equal(204);
+  });
+}
