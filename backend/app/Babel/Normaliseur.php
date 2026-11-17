@@ -23,7 +23,7 @@ final class Normaliseur
         $texte = $this->etapes1a3($texte);
 
         // 4. Réduire les espaces qui se suivent à une seule.
-        $texte = preg_replace('/ {2,}/', ' ', $texte);
+        $texte = $this->remplacer('/ {2,}/', ' ', $texte);
 
         // 5. Retirer les espaces du début et de la fin (après l'étape 3, il ne reste plus d'autre blanc).
         return trim($texte, ' ');
@@ -51,11 +51,22 @@ final class Normaliseur
         //    puis on retire les signes combinants (\p{Mn}). Les lettres liées sont développées à la main.
         //    Ce qui n'est pas un accent (ß, ø, ł…) n'est pas converti : l'étape 3 en fait une espace.
         $texte = Normalizer::normalize($texte, Normalizer::FORM_D) ?: $texte;
-        $texte = preg_replace('/\p{Mn}/u', '', $texte);
+        $texte = $this->remplacer('/\p{Mn}/u', '', $texte);
         $texte = strtr($texte, ['œ' => 'oe', 'æ' => 'ae']);
 
         // 3. Tout caractère hors alphabet devient une espace, saut de ligne compris.
         //    L'alphabet vient du moteur : une seule source de vérité, pas de copie à tenir à jour.
-        return preg_replace('/[^'.preg_quote(Moteur::ALPHABET, '/').']/u', ' ', $texte);
+        return $this->remplacer('/[^'.preg_quote(Moteur::ALPHABET, '/').']/u', ' ', $texte);
+    }
+
+    /**
+     * preg_replace renvoie null en cas d'erreur de PCRE. Ici, l'entrée est de l'UTF-8 valide (mb_scrub) et
+     * les motifs sont fixes : null voudrait dire un motif cassé dans notre code. On le dit tout de suite
+     * (erreur 500, dans les logs) plutôt que de renvoyer un texte faux en silence.
+     */
+    private function remplacer(string $motif, string $par, string $texte): string
+    {
+        return preg_replace($motif, $par, $texte)
+            ?? throw new \LogicException('Motif de normalisation invalide : '.preg_last_error_msg());
     }
 }

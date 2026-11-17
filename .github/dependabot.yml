@@ -1,3 +1,4 @@
+# Dependabot propose chaque semaine la mise à jour des actions GitHub épinglées dans .github/workflows/.
 version: 2
 updates:
   - package-ecosystem: "github-actions"

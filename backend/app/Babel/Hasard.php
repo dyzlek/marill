@@ -32,8 +32,8 @@ final class Hasard
     private function numeroAuHasard(): GMP
     {
         $total = self::nombreDePages();
-        $bits = strlen(gmp_strval(gmp_sub($total, 1), 2));
-        $octets = intdiv($bits + 7, 8);
+        $bits = strlen(gmp_strval(gmp_sub($total, 1), 2)); // 15 546
+        $octets = max(1, intdiv($bits + 7, 8)); // random_bytes exige au moins 1 octet
 
         do {
             // On jette les bits de trop au début pour ne garder que $bits bits.

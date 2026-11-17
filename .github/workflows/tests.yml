@@ -1,0 +1,66 @@
+# Intégration continue du serveur (issue #14) : à chaque push sur main et à chaque pull request,
+# on installe le projet sur une machine neuve et on lance les mêmes vérifications qu'en local :
+# composer test = Pint (style), PHPStan (analyse statique), puis les tests Pest.
+#
+# Monorepo : GitHub ne lit que le .github/ de la racine, d'où ce fichier ici, qui travaille dans backend/.
+
+name: tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# Le workflow lit le dépôt, il n'écrit rien dessus.
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Actions épinglées par empreinte de commit (pas par étiquette) : une étiquette peut être déplacée.
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Installer PHP (avec gmp et intl)
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.5'
+          extensions: gmp, intl, mbstring, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+
+      - name: Installer Node (pour construire les assets Vite)
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Installer les dépendances PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Clé jetable : babel:cle tire une clé neuve dans le .env de la machine de CI, qui disparaît à la fin.
+      # Jamais la vraie clé de la bibliothèque, ni dans ce fichier ni dans les secrets GitHub :
+      # les tests n'ont besoin que d'une clé valide, pas de la nôtre.
+      - name: Préparer le .env de test (APP_KEY et BABEL_KEY jetables)
+        run: |
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+          php artisan babel:cle --no-interaction
+          php artisan babel:verifier
+
+      - name: Construire les assets (pages du starter kit)
+        run: |
+          npm ci
+          npm run build
+
+      - name: Lancer Pint, PHPStan et les tests Pest
+        run: composer ci:check

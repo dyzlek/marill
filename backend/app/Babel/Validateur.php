@@ -89,6 +89,7 @@ final class Validateur
         return new ResultatValidation(true, $page === null ? 'livre' : 'page', []);
     }
 
+    /** @return array{code: string, champ: string, message: string}|null */
     private function verifierHexagone(string $hexagone): ?array
     {
         if ($hexagone === '') {
@@ -123,6 +124,7 @@ final class Validateur
         return strcmp($hexagone, $dernier) > 0;
     }
 
+    /** @return array{code: string, champ: string, message: string}|null */
     private function verifierNombre(string $valeur, string $champ, string $nom, int $max): ?array
     {
         // Chiffres ASCII seulement, sans zéro devant ni signe : « 04 », « +4 », « ４ » sont refusés.
@@ -137,12 +139,17 @@ final class Validateur
         return null;
     }
 
-    /** Message en français, qui ne recopie jamais l'entrée (rien à échapper côté affichage). */
+    /**
+     * Message en français, qui ne recopie jamais l'entrée (rien à échapper côté affichage).
+     *
+     * @return array{code: string, champ: string, message: string}
+     */
     private function erreur(string $code, string $champ, string $message): array
     {
         return ['code' => $code, 'champ' => $champ, 'message' => $message];
     }
 
+    /** @param  list<array{code: string, champ: string, message: string}>  $erreurs */
     private function invalide(array $erreurs): ResultatValidation
     {
         return new ResultatValidation(false, null, $erreurs);

@@ -1,5 +1,7 @@
 # La Bibliothèque de Babel en réseau
 
+[![tests](https://github.com/dyzlek/marill/actions/workflows/tests.yml/badge.svg)](https://github.com/dyzlek/marill/actions/workflows/tests.yml)
+
 Projet fil rouge du BUT MMI 3, parcours Développement web et dispositifs interactifs, IUT de Béziers. Groupe **Babel 3**.
 
 ## Le projet
@@ -22,9 +24,10 @@ Le suivi détaillé est sur le [tableau du projet](https://github.com/users/dyzl
 
 - [x] Cahier des charges final (15 novembre 2026)
 - [x] Projet Laravel créé, moteur installé et vérifié
-- [ ] API REST et authentification (Sanctum)
+- [x] API REST : lire une page, chercher, identité, page au hasard (Sanctum installé)
 - [ ] Modèle de données : les 14 tables
-- [ ] Fonctions du serveur : normaliser, valider, page au hasard
+- [x] Fonctions du serveur : normaliser, valider, page au hasard
+- [x] Intégration continue : Pint, PHPStan et tests Pest à chaque push
 - [ ] Back-office Filament
 - [ ] Réseau : recherche sur les pairs, temps réel
 - [ ] Application web Angular
