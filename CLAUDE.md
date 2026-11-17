@@ -14,8 +14,9 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 
 1. Atelier cahier des charges (2 et 5 novembre) : terminé. Nos livrables sont dans `docs/atelier/livrables-babel3/`.
 2. **Cahier des charges final du 15 novembre 2026** : reçu. Sa version texte complète (contenu visible seulement, relu sur le rendu) est dans [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md). **C'est la référence pour tout le code.** Ne jamais la régénérer par extraction de texte du PDF : la couche texte du PDF est piégée. Le PDF (`Babel-cahier-des-charges-final.pdf`) reste hors du dépôt.
-3. À venir : le moteur et la plateforme (cours du 17 novembre), puis le **contrat d'API commun** (routes, forme des erreurs, format d'export), pas encore publié.
-4. Prochaine étape de code : créer le projet Laravel dans `backend/` quand le moteur est fourni.
+3. **Moteur reçu le 17 novembre** : paquet Composer `but-mmi-beziers/babel-moteur` v1.0.1 (voir la section « Le moteur » plus bas). À venir : la plateforme (annuaire, testeur) et le **contrat d'API commun** (routes, forme des erreurs, format d'export), pas encore publié.
+4. **Projet Laravel créé le 17 novembre** dans `backend/` (Laravel 13.42, starter kit Livewire, Pest, SQLite, sans Boost), moteur installé, clé générée dans `backend/.env` (empreinte `95df3bfb…c16ee`), `babel:verifier` « Tout est prêt », 38 tests Pest verts. Pas encore fait : `install:api` (Sanctum), migrations du MLD, F3/F5/F7, routes, Filament.
+5. Le starter kit a créé `backend/.github/` (workflows) : dans un monorepo, GitHub ne lit que le `.github/` de la racine, donc ces workflows ne tournent pas (à régler au cours d'intégration continue du 20 novembre).
 
 ## L'essentiel du cahier des charges (détails dans docs/cahier-des-charges.md)
 
@@ -34,6 +35,31 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 - **Back** (`backend/`) : Laravel, PHP 8.3+ avec **GMP**, Filament (back-office), API REST + **OpenAPI**, **Sanctum / OAuth2 / JWT**, **Pest**, **Reverb**, **SQLite** au départ.
 - **Front** (`frontend/`) : Angular + TypeScript, Tailwind CSS, signals, RxJS, intercepteurs et guards, Echo + Reverb, SSR.
 - Outils : Git, Composer, Laravel installer, Node LTS. Vérifier : `php -v`, `php -m` (gmp), `composer -V`, `laravel --version`, `node -v`, `git --version`.
+
+## Le moteur (fourni, boîte noire)
+
+Paquet `but-mmi-beziers/babel-moteur` v1.0.1 (Packagist), notice : https://github.com/BUT-MMI-Beziers/moteur-bibliotheque-babel#readme. Ne pas lire ni modifier son code : la notice suffit. Algorithme `babel-moteur/v1` (Feistel sur HMAC-SHA256), bijection exacte, déterministe, sans état, ~1-2 ms par appel.
+
+**Installation** (dans `backend/`, gmp active pour la CLI **et** le serveur web) :
+```bash
+composer require but-mmi-beziers/babel-moteur   # découvert tout seul par Laravel
+php artisan babel:cle                           # ajoute BABEL_KEY=base64:… au .env
+php artisan babel:verifier                      # doit finir par « Tout est prêt »
+```
+
+**API** : classe `Babel\Moteur\Moteur`, à **injecter** (constructeur ou paramètre), jamais `new Moteur()`, pas de façade. Dans une tâche en file d'attente : l'injecter dans `handle()`, jamais dans le constructeur (il refuse d'être sérialisé).
+- `lire(string $adresse): string` (F1) : 3 200 caractères. Renvoie **toutes** les erreurs de l'adresse d'un coup (au plus une par partie, ordre hexagone, mur, etagere, volume, page).
+- `chercher(string $texte, string $mode): string` (F2) : modes `exact`, `bruit`, `page` (casse comprise). S'arrête à la **première** erreur. Refuse un texte non normalisé (ne le corrige pas). Adresse renvoyée jusqu'à 3 018 caractères. Un texte de 3 200 caractères donne la même adresse dans les trois modes. `chercher(lire($a), 'page') === $a`.
+- `empreinte(): string` (F8) : 64 caractères hexadécimaux minuscules, à publier avec l'identité (B6).
+- Constantes à utiliser au lieu de recopier des nombres : `Moteur::ALPHABET` (`'abcdefghijklmnopqrstuvwxyz ,.'`, dans cet ordre), `LONGUEUR_PAGE`, `MURS`, `ETAGERES`, `VOLUMES`, `PAGES`, `LONGUEUR_MAX_HEXAGONE`, `MODES`, `ALGORITHME`.
+
+**Erreurs** : `Babel\Moteur\Erreur\ErreurMoteur`, avec `versTableau()` qui donne déjà `[['code','champ','message'], …]` (messages en français, sans recopier l'entrée). Statut HTTP à fixer selon le contrat : 422 dès qu'une erreur de forme, 404 si seulement `ERR_OUT_OF_BOUNDS` (l'exemple de la notice renvoie toujours 422, à adapter). On peut tout traduire au même endroit avec `$exceptions->render(...)` dans `bootstrap/app.php`. `CleInvalide` (clé absente ou mal formée) est une erreur d'installation : **ne pas l'attraper**, laisser un 500.
+
+**Adresses** : `0-w1-s1-v1:1` est la première page ; le dernier hexagone n'a qu'une page (`<dernier>-w1-s1-v1:1`). Une seule écriture valide (pas de zéro de tête, pas de majuscule, pas d'espace, pas de `trim()`).
+
+**Clé `BABEL_KEY`** : générée une fois, **jamais changée** après partage d'adresses (`--force` seulement avant l'ouverture), **jamais commitée** ni écrite dans le code, **sauvegardée** (gestionnaire de mots de passe : perdue = bibliothèque perdue), recopiée telle quelle en production (`babel:cle --afficher`, ne pas relancer `babel:cle` sur le serveur), sans lien avec `APP_KEY`, lue (si besoin) par `config('babel.cle')`, jamais `env()`. Seule l'empreinte se publie. Si les adresses changent de texte : comparer l'empreinte de `babel:verifier`.
+
+**Reste à écrire nous-mêmes** : F3 `normaliser`, F5 `valider`, F7 `auHasard` (serveur, hexagone de 3 004 chiffres en base 36 : GMP, pas un entier 64 bits) ; F4 `localiser`, F6 `voisine` (Angular) ; routes, statuts, JSON, et toutes les données de l'application.
 
 ## Façon de travailler attendue (d'après le tuto Laravel 13 « CinéClub » de l'enseignant)
 
@@ -122,7 +148,7 @@ Module branché sur le tuto Laravel (à partir de l'étape 4). Versions visées 
 
 ## Organisation du dépôt (monorepo, GitHub privé dyzlek/marill)
 
-- `backend/` : projet Laravel (à créer).
+- `backend/` : projet Laravel 13 (voir `backend/README.md` pour l'installer après un clone).
 - `frontend/` : projet Angular (à créer).
 - `docs/cahier-des-charges.md` : résumé du cahier des charges final.
 - `docs/atelier/enonce.md` : énoncé de l'atelier ; `docs/atelier/livrables-babel3/` : nos livrables du 5 novembre.
