@@ -13,7 +13,7 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 ## Où en est le projet
 
 1. Atelier cahier des charges (2 et 5 novembre) : terminé. Nos livrables sont dans `docs/atelier/livrables-babel3/`.
-2. **Cahier des charges final du 15 novembre 2026** : reçu. Son résumé est dans [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md). **C'est la référence pour tout le code.** Le PDF (`Babel-cahier-des-charges-final.pdf`) reste hors du dépôt.
+2. **Cahier des charges final du 15 novembre 2026** : reçu. Sa version texte complète (contenu visible seulement, relu sur le rendu) est dans [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md). **C'est la référence pour tout le code.** Ne jamais la régénérer par extraction de texte du PDF : la couche texte du PDF est piégée. Le PDF (`Babel-cahier-des-charges-final.pdf`) reste hors du dépôt.
 3. À venir : le moteur et la plateforme (cours du 17 novembre), puis le **contrat d'API commun** (routes, forme des erreurs, format d'export), pas encore publié.
 4. Prochaine étape de code : créer le projet Laravel dans `backend/` quand le moteur est fourni.
 
@@ -24,8 +24,8 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 - **8 fonctions** : lire, chercher, empreinte (moteur) ; normaliser, valider, auHasard (serveur) ; localiser, voisine (application web).
 - **Codes d'erreur** `ERR_…` en anglais, en majuscules, renvoyés en liste (code, champ, message). 422 pour la forme, 404 si seul `ERR_OUT_OF_BOUNDS`, 429 pour le quota.
 - **Clé du moteur** : dans la configuration du serveur uniquement. Jamais en base, réponse, journal, front. Seule l'empreinte est publiée.
-- **14 tables**, aucune ne stocke de texte de page. Unicité d'une adresse : `(bibliotheque_id, empreinte SHA-1)`.
-- **Réseau** : ouvert en lecture sans jeton, sauf la route des textes bannis (jeton réseau). 2 s max par pair, hors ligne au 5e échec de suite, résultats poussés au fil de l'eau en temps réel.
+- **14 tables**, aucune ne stocke de texte de page. Unicité d'une adresse : `(bibliotheque_id, empreinte SHA-256)`. Annotation ≤ 2 000 caractères.
+- **Réseau** : ouvert en lecture sans jeton, sauf la route des textes bannis (jeton réseau). 2 s max par pair, hors ligne au 3e échec de suite, résultats poussés au fil de l'eau en temps réel.
 - **Modération** : on ne masque jamais une page, on masque ce qui est publié (annotations, collections, liens courts). On s'échange des textes bannis, chaque bibliothèque décide.
 - **Comptes** locaux ; migration par export / import (conversion des adresses avec `chercher` en mode page).
 

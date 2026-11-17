@@ -10,7 +10,7 @@ Chaque groupe code sa bibliothèque ; dix bibliothèques se branchent entre elle
 |---|---|
 | [`backend/`](backend/) | serveur Laravel (R5.06) : moteur, API interne et publique, back-office, tâches de fond |
 | [`frontend/`](frontend/) | application web Angular (R5.05) |
-| [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md) | résumé du cahier des charges final du 15 novembre 2026 |
+| [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md) | cahier des charges final du 15 novembre 2026, en texte |
 | [`docs/atelier/`](docs/atelier/) | énoncé de l'atelier et livrables rendus par le groupe le 5 novembre |
 | [`exercices/`](exercices/) | petits exercices de cours |
 | [`CLAUDE.md`](CLAUDE.md) | contexte du projet et consignes pour Claude |
