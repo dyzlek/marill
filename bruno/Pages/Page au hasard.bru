@@ -1,0 +1,28 @@
+meta {
+  name: Page au hasard
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/hasard
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("200 avec une adresse de page et 3 200 caractères, sans cache", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().data.adresse).to.match(/^[0-9a-z]+-w[1-4]-s[1-5]-v\d+:\d+$/);
+    expect(res.getBody().data.texte.length).to.equal(3200);
+    expect(res.getHeader("cache-control")).to.contain("no-store");
+  });
+}
+
+docs {
+  V9 : une page au hasard (F7), chaque page a la même chance de sortir. Une autre adresse à chaque appel.
+}

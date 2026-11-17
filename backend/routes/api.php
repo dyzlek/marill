@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\HasardController;
 use App\Http\Controllers\Api\IdentiteController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\RechercheController;
@@ -27,4 +28,7 @@ Route::name('api.')->group(function () {
     // Identité publique (B6) : identifiant, nom, description, empreinte de la clé (jamais la clé).
     // Le chemin exact sera fixé par le contrat d'API commun.
     Route::get('identite', IdentiteController::class)->name('identite');
+
+    // Page au hasard (V9, F7), publique. Le chemin exact sera fixé par le contrat d'API commun.
+    Route::get('hasard', HasardController::class)->name('hasard');
 });
