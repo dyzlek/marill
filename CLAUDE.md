@@ -35,6 +35,78 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 - **Front** (`frontend/`) : Angular + TypeScript, Tailwind CSS, signals, RxJS, intercepteurs et guards, Echo + Reverb, SSR.
 - Outils : Git, Composer, Laravel installer, Node LTS. Vérifier : `php -v`, `php -m` (gmp), `composer -V`, `laravel --version`, `node -v`, `git --version`.
 
+## Façon de travailler attendue (d'après le tuto Laravel 13 « CinéClub » de l'enseignant)
+
+Le tuto (fait le 6 novembre, code dans `cineclub/` et `tuto-laravel-0-4/`, hors dépôt) montre comment l'enseignant veut qu'on code. À partir du 17 novembre, Babel se fait **en autonomie, avec la documentation** : expliquer le « pourquoi » de chaque choix, pas seulement le code.
+
+**Versions** : Laravel 13, PHP 8.3+, Pest, Sanctum, Filament 5 (Livewire 4 seulement parce que Filament en dépend). Un tuto en ligne qui parle de `app/Http/Kernel.php` date d'avant Laravel 11 : la config passe par `bootstrap/app.php`. Pas de Laravel Boost (le but est de comprendre soi-même).
+
+**Pour Babel** : front **Angular** qui appelle une **API Laravel** en JSON. Blade et Livewire ne servent pas au front de Babel (seulement via Filament). L'étape 4 du tuto (API REST) est celle qui sert directement.
+
+**Organisation du code Laravel**
+- Toutes les routes dans `routes/api.php` (préfixe `/api`, groupe de middlewares `api`, sans session ni CSRF), noms de routes préfixés (`Route::name('api.')`) pour éviter les collisions. `php artisan route:list` pour déboguer une 404.
+- Contrôleurs d'API dans `app/Http/Controllers/Api/` (`make:controller ... --api --model=... --requests`), routes via `apiResource()`.
+- **Validation dans des FormRequest** (penser à mettre `authorize()` à `true` ou à y mettre la vraie règle, sinon 403). Réponse 422 automatique.
+- **Format des réponses dans des API Resources** : c'est le contrat. Ne jamais renvoyer un modèle brut. `whenLoaded()` / `whenAggregated()` pour ne jamais déclencher de requête cachée. Pour Babel, les Resources doivent coller au contrat OpenAPI commun.
+- Codes HTTP REST : 200, 201 (création), 204 (suppression), 401, 403, 404, 422, 429.
+- **Authentification ≠ autorisation** : `auth:sanctum` dit qui envoie la requête (401), une **Gate ou Policy** dit s'il a le droit (403). Attributs Laravel 13 `#[Middleware(...)]` et `#[Authorize(...)]` sur le contrôleur. Une seule définition de l'admin (`isAdmin()`), réutilisée par l'API et par Filament (`canAccessPanel`).
+- Jetons Sanctum : route `POST /api/tokens` limitée par `throttle`, message d'erreur volontairement vague, jeton en clair montré une seule fois.
+- **Eloquent** (Active Record) : modèles au singulier, tables au pluriel, clés étrangères `xxx_id`, pivot au singulier par ordre alphabétique. Attributs `#[Fillable]`, `#[RouteKey]`, `casts()`, relations typées. Migrations écrites à la main, dans le bon ordre (horodatage). Factories + seeders pour les données de test (`migrate:fresh --seed`).
+- **N+1** : `with()` / `load()` toujours, et `Model::preventLazyLoading(! app()->isProduction())` dans `AppServiceProvider::boot()`.
+- **Configuration** : `env()` uniquement dans `config/`, `config()` partout ailleurs (sinon `null` en production après `config:cache`). `.env` jamais commité, `.env.example` sans secret. `APP_DEBUG=false` en production.
+- **Back-office Filament** sur `/admin` (`filament:install --panels`), ressources générées (`make:filament-resource ... --generate`), accès réservé à l'admin.
+- Services et façades : le conteneur fabrique les objets à partir des types (autowiring) ; on enregistre un service dans un service provider (`register()` puis `boot()`).
+- Sécurité : Blade échappe avec `{{ }}`, jamais `{!! !!}` sur une donnée utilisateur ; l'identité vient de `Auth::id()`, jamais du formulaire. CORS à restreindre avant la mise en ligne (`config:publish cors`).
+
+**Habitudes**
+- **Committer à la fin de chaque étape** (Git).
+- Tester l'API avec **Bruno** : collection dans un dossier `bruno/` commité avec le projet, environnement `local` avec `baseUrl`, jeton rangé par script. curl sous Git Bash seulement.
+- Tester une requête dans `php artisan tinker` avant de l'écrire dans un contrôleur.
+- Lire `storage/logs/laravel.log` en cas d'erreur.
+
+**Questions laissées par le tuto pour Babel** (à faire réfléchir le groupe, pas à trancher à sa place) : quelles routes publiques, lesquelles avec jeton, qui a le droit de faire quoi ? Que se passe-t-il pour le réseau si on renomme un champ d'une Resource ? Où ranger le moteur fourni pour que les contrôleurs s'en servent sans le fabriquer ? Combien de requêtes SQL pour la page la plus chargée, et comment le savoir ?
+
+**Point à trancher** : le MLD du cahier des charges nomme ses tables au singulier et en majuscules (`UTILISATEUR`, `MARQUE_PAGE`…), alors que les conventions Laravel veulent des tables au pluriel (`utilisateurs`, `marque_pages`…). Suivre les conventions évite de tout préciser à la main dans chaque relation : décision à prendre par le groupe.
+
+## Authentification et front Angular attendus (d'après le tuto « OAuth2 : la connexion GitHub du CinéClub »)
+
+Module branché sur le tuto Laravel (à partir de l'étape 4). Versions visées : Laravel 13, Socialite 5, Sanctum 4 en **mode SPA**, Angular 22 (Node 22.22+). Signes d'un tuto trop vieux : `SocialiteServiceProvider` déclaré à la main, code Angular rangé dans des `NgModule`.
+
+**Principes OAuth 2 à savoir expliquer**
+- Flux par **code d'autorisation** : aller (`/auth/.../redirect`) puis retour (`/auth/.../callback`). Le secret client ne passe **jamais** par le navigateur (échange code → jeton de serveur à serveur). Le code est à usage unique et court. Le **state** relie l'aller et le retour (protection contre un retour falsifié).
+- « Se connecter avec X » = se servir d'une autorisation pour faire de l'authentification. OpenID Connect est la couche faite pour ça (pas chez GitHub).
+- Jamais `->stateless()` : il supprime la protection du state.
+- On ne garde pas le jeton du fournisseur : donnée non stockée = donnée qui ne fuit pas.
+
+**Côté Laravel**
+- `composer require laravel/socialite`, rien à déclarer. Identifiant et secret dans le `.env` (secret jamais commité, sinon le régénérer), lus via `config/services.php`. `.env.example` avec les clés vides.
+- Rapprochement d'un compte par l'**identifiant stable du fournisseur** (colonne `nullable()->unique()`), pas par l'email qui peut changer. Ne relier un compte existant par email que si les **deux côtés ont vérifié l'adresse** (sinon : supprimer le compte jamais confirmé et recréer). Colonnes sensibles affectées une par une, jamais dans `#[Fillable]`.
+- Routes OAuth dans `routes/web.php` (elles ont besoin de la session pour le state), hors du groupe `auth`.
+- Erreurs : `report($e)` dans les logs, message court à l'utilisateur, jamais le texte d'une exception.
+- Même adresse partout (`localhost`, pas `127.0.0.1` ni `.test`) : le cookie de session est lié au nom d'hôte.
+
+**Front Angular + API : session par cookie, pas jeton en `localStorage`**
+- Notre propre front utilise la **session Laravel (cookie HttpOnly)** via Sanctum en mode SPA. Les clients extérieurs (Bruno, autres bibliothèques) gardent des **jetons**. Le même `auth:sanctum` accepte les deux.
+- Laravel : `FRONTEND_URL` (via `config/app.php`), `SANCTUM_STATEFUL_DOMAINS=localhost:4200` (sans `http://`), `$middleware->statefulApi()` dans `bootstrap/app.php`, CORS publié (`config:publish cors`) avec l'origine nommée (plus d'étoile), `supports_credentials => true`, et les chemins `api/*`, `sanctum/csrf-cookie`, `logout`.
+- Adresse de retour vers le front **lue dans la config, jamais dans la requête** (sinon : redirection ouverte).
+- Condition : front et API sur le **même site** (même domaine). Sinon il faudrait un jeton obtenu par code + **PKCE** (Laravel Passport), à ne pas réinventer.
+- **CSRF revient** avec le cookie : Laravel dépose `XSRF-TOKEN`, le front renvoie l'en-tête `X-XSRF-TOKEN` sur toute requête qui modifie (sinon 419).
+
+**Conventions Angular 22**
+- Composants autonomes + `app.config.ts` (`provideRouter`, `provideHttpClient(withInterceptors([...]))`, `provideAppInitializer`). Pas de `NgModule`.
+- Fichiers et classes sans suffixe (`auth.ts`, classe `Auth`), `@Service()`, `inject()` plutôt que le constructeur, guards et intercepteurs **en fonctions**, **signaux** (`signal`, `computed`, `asReadonly()`) plutôt que `BehaviorSubject`, `@if` / `@for` plutôt que `*ngIf` / `*ngFor`, `input()` + `withComponentInputBinding()` pour les paramètres d'URL, `firstValueFrom()` pour les appels ponctuels.
+- **Une responsabilité par fichier** dans `auth/` : le type (`membre.ts`), le service (état de connexion dans un signal privé, exposé en lecture seule), l'intercepteur (cookies `withCredentials` **uniquement vers notre back**, en-tête CSRF, 401 → oublier et rediriger), le guard. Les pages ne savent pas comment on s'authentifie.
+- Le front ne sait pas s'il est connecté : il demande au serveur (`GET /api/user`) **avant le premier affichage** (`provideAppInitializer`). Rien dans `localStorage`.
+- `environment.ts` part dans le navigateur : des adresses, **jamais un secret**.
+- **Un guard ne protège rien** : la vraie protection est `auth:sanctum` (et les Gates) sur l'API.
+- Cookie HttpOnly (limite le vol de session en cas de XSS), jeton CSRF (empêche un autre site d'utiliser la session), CORS (empêche un autre site de lire les réponses) : les trois sont nécessaires.
+
+**Avant une mise en ligne** : une application OAuth par environnement, `SESSION_DOMAIN=.domaine`, `SESSION_SECURE_COOKIE=true`, adresses de production dans le `.env` et `environment.ts`, `APP_DEBUG=false`.
+
+**Questions laissées par le tuto pour Babel** (à faire réfléchir le groupe) : quelles pages du front publiques, lesquelles derrière le guard (même réponse que pour les routes de l'API) ? Avec quelle preuve les autres bibliothèques appellent-elles notre API, et qu'est-ce que ça change pour les routes ? Si le fournisseur OAuth est en panne, qui peut encore se connecter ?
+
+**Point à trancher** : le cahier des charges prévoit des comptes avec pseudo, email et mot de passe (V19, M1) et ne parle pas de connexion par un fournisseur extérieur. Ajouter ou non une connexion OAuth à Babel, et laquelle, est un choix du groupe (à confirmer avec l'enseignant). Côté réseau, rien ne change : l'API publique reste ouverte en lecture sans jeton, sauf la route des textes bannis (jeton réseau), et les comptes restent locaux.
+
 ## Calendrier
 
 | Date | Back R5.06 | Front R5.05 |
