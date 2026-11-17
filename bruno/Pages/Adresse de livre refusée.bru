@@ -1,0 +1,22 @@
+meta {
+  name: Adresse de livre refusée
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/pages/0-w1-s1-v1
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("422 sur le champ page", function () {
+    expect(res.getStatus()).to.equal(422);
+    expect(res.getBody().erreurs[0].champ).to.equal("page");
+  });
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Adresse mal écrite
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/pages/Ab-w9-s1-v1:01
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("422 avec toutes les erreurs au format commun", function () {
+    expect(res.getStatus()).to.equal(422);
+    const codes = res.getBody().erreurs.map((e) => e.code);
+    expect(codes).to.eql(["ERR_INVALID_HEX_CHARS", "ERR_OUT_OF_BOUNDS", "ERR_INVALID_ADDRESS_SYNTAX"]);
+  });
+}

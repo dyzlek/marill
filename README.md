@@ -56,6 +56,7 @@ Le site répond sur http://localhost:8000. Le détail, dont le partage de la cl�
 | Dossier | Contenu |
 |---|---|
 | [`backend/`](backend/) | serveur Laravel : moteur, API interne et publique, back-office, tâches de fond |
+| [`bruno/`](bruno/) | collection [Bruno](https://www.usebruno.com/) pour essayer l'API (environnement `local`) |
 | [`frontend/`](frontend/) | application web Angular (à venir) |
 | [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md) | cahier des charges final : stories, fonctions du moteur, modèle de données, architecture |
 | [`docs/atelier/`](docs/atelier/) | énoncé de l'atelier et livrables du groupe (5 novembre) |

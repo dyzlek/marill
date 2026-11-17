@@ -1,0 +1,22 @@
+meta {
+  name: Page hors limites
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/pages/0-w1-s1-v1:411
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("404 quand il ne reste que ERR_OUT_OF_BOUNDS", function () {
+    expect(res.getStatus()).to.equal(404);
+    expect(res.getBody().erreurs[0].code).to.equal("ERR_OUT_OF_BOUNDS");
+  });
+}
