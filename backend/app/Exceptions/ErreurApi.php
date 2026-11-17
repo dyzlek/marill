@@ -43,6 +43,8 @@ final class ErreurApi extends Exception
         'ERR_LINK_NOT_FOUND' => 404,
         'ERR_LINK_EXPIRED' => 410,
         'ERR_LINK_HIDDEN' => 410,
+        // Signalements (issue #22). Un membre ne signale qu'une fois le même contenu (choix du groupe).
+        'ERR_ALREADY_REPORTED' => 409,
     ];
 
     /** @param  list<array{code: string, champ: ?string, message: string}>  $erreurs */

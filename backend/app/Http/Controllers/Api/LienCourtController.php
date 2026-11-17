@@ -68,6 +68,13 @@ class LienCourtController extends Controller
         if ($lien->estMasque()) {
             throw new ErreurApi([['code' => 'ERR_LINK_HIDDEN', 'champ' => 'slug', 'message' => 'Ce lien court a été retiré par la modération.']]);
         }
+        // V18 : un membre ne revoit pas un lien qu'il a signalé, quelle que soit la décision de l'administrateur.
+        // Pour lui seul : les autres l'ouvrent toujours. Même code (le lien lui est caché), autre message.
+        /** @var User|null $membre */
+        $membre = auth('sanctum')->user();
+        if ($lien->estSignalePar($membre)) {
+            throw new ErreurApi([['code' => 'ERR_LINK_HIDDEN', 'champ' => 'slug', 'message' => 'Vous avez signalé ce lien court.']]);
+        }
 
         // increment() : un seul UPDATE … SET visites = visites + 1 en SQL. Deux visites simultanées comptent
         // bien pour deux, ce qui ne serait pas le cas avec « lire la valeur, ajouter 1 en PHP, enregistrer ».

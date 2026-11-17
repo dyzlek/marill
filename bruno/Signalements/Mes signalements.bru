@@ -1,0 +1,26 @@
+meta {
+  name: Mes signalements
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/signalements
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("200 : la liste de ce que le membre a signalé (V18)", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().data).to.be.an("array");
+  });
+}

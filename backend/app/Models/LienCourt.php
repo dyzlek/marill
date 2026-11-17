@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\RegleNonRespectee;
+use App\Models\Concerns\Signalable;
 use Carbon\CarbonImmutable;
 use Database\Factories\LienCourtFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -10,7 +11,6 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * LIEN_COURT (règle 11) : exactement une cible (une adresse, page ou livre, ou une collection).
@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class LienCourt extends Model
 {
     /** @use HasFactory<LienCourtFactory> */
-    use HasFactory;
+    use HasFactory, Signalable; // signalements(), nonSignalesPar(), estSignalePar() : V17, V18
 
     const UPDATED_AT = null;
 
@@ -115,11 +115,5 @@ class LienCourt extends Model
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
-    }
-
-    /** @return HasMany<Signalement, $this> */
-    public function signalements(): HasMany
-    {
-        return $this->hasMany(Signalement::class);
     }
 }

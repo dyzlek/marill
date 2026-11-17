@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Signalable;
 use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Collection extends Model
 {
     /** @use HasFactory<CollectionFactory> */
-    use HasFactory;
+    use HasFactory, Signalable; // signalements(), nonSignalesPar(), estSignalePar() : V17, V18
 
     /** masque_le hors de #[Fillable] : seul un administrateur le pose (règle 14). */
     protected function casts(): array
@@ -55,11 +56,5 @@ class Collection extends Model
     public function liensCourts(): HasMany
     {
         return $this->hasMany(LienCourt::class);
-    }
-
-    /** @return HasMany<Signalement, $this> */
-    public function signalements(): HasMany
-    {
-        return $this->hasMany(Signalement::class);
     }
 }

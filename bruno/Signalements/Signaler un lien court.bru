@@ -1,0 +1,29 @@
+meta {
+  name: Signaler un lien court
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/signalements
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "lien_court": "{{slug}}",
+    "motif": "Test de signalement depuis Bruno"
+  }
+}
+
+tests {
+  test("201 : un visiteur signale, sans auteur", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().data.cible.type).to.equal("lien_court");
+  });
+}
