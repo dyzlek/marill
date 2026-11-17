@@ -18,6 +18,14 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 4. **Projet Laravel créé le 17 novembre** dans `backend/` (Laravel 13.42, starter kit Livewire, Pest, SQLite, sans Boost), moteur installé, clé générée dans `backend/.env` (empreinte `95df3bfb…c16ee`), `babel:verifier` « Tout est prêt », 38 tests Pest verts. Pas encore fait : `install:api` (Sanctum), migrations du MLD, F3/F5/F7, routes, Filament.
 5. Le starter kit a créé `backend/.github/` (workflows) : dans un monorepo, GitHub ne lit que le `.github/` de la racine, donc ces workflows ne tournent pas (à régler au cours d'intégration continue du 20 novembre).
 
+## Suivi du travail sur GitHub
+
+- **Projet** « R506 · Bibliothèque de Babel » : https://github.com/users/dyzlek/projects/4 (colonnes Backlog, À faire, En cours, À vérifier, Terminé, comme les autres projets de l'utilisateur).
+- **49 issues** sur `dyzlek/marill`, une par fonctionnalité, qui citent les numéros de stories et renvoient à `docs/cahier-des-charges.md`. Décisions du groupe et questions pour l'enseignant : labels `décision` et `question prof`.
+- **7 milestones** : 1 Socle serveur (24 nov.), 2 Données et comptes (1er déc.), 3 Réseau (3 déc.), 4 Évaluation R5.06 (4 déc.), 5 Front : socle (18 déc.), 6 Front : réseau et SSR (15 janv.), 7 Évaluation R5.05 (21 janv.).
+- **Labels** : zone (`back`, `front`, `réseau`, `tests`, `ci`, `sécurité`), type (`story`, `tâche`, `décision`, `question prof`), priorité du cahier des charges (`prio: indispensable`, `prio: important`, `prio: bonus`).
+- Habitude : commencer une tâche en passant son issue « En cours », et la fermer par le commit (`Closes #n`) ou la PR. En début de session, regarder les issues du milestone en cours pour savoir quoi faire.
+
 ## L'essentiel du cahier des charges (détails dans docs/cahier-des-charges.md)
 
 - **Adresse** : `<hexagone>-w<mur>-s<étagère>-v<volume>:<page>`. Hexagone en base 36 (chiffres + minuscules), ≤ 3 004 caractères ; mur 1–4, étagère 1–5, volume 1–32, page 1–410. Sans `:<page>` = un livre (lien court seulement).

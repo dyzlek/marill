@@ -18,6 +18,8 @@ Chaque groupe code sa propre bibliothèque, avec sa propre clé : la même adres
 
 ## Où on en est
 
+Le suivi détaillé est sur le [tableau du projet](https://github.com/users/dyzlek/projects/4), avec les [issues](https://github.com/dyzlek/marill/issues) rangées par [milestone](https://github.com/dyzlek/marill/milestones).
+
 - [x] Cahier des charges final (15 novembre 2026)
 - [x] Projet Laravel créé, moteur installé et vérifié
 - [ ] API REST et authentification (Sanctum)
