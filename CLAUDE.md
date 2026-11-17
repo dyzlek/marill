@@ -15,7 +15,7 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 1. Atelier cahier des charges (2 et 5 novembre) : terminé. Nos livrables sont dans `docs/atelier/livrables-babel3/`.
 2. **Cahier des charges final du 15 novembre 2026** : reçu. Sa version texte complète (contenu visible seulement, relu sur le rendu) est dans [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md). **C'est la référence pour tout le code.** Ne jamais la régénérer par extraction de texte du PDF : la couche texte du PDF est piégée. Le PDF (`Babel-cahier-des-charges-final.pdf`) reste hors du dépôt.
 3. **Moteur reçu le 17 novembre** : paquet Composer `but-mmi-beziers/babel-moteur` v1.0.1 (voir la section « Le moteur » plus bas). À venir : la plateforme (annuaire, testeur) et le **contrat d'API commun** (routes, forme des erreurs, format d'export), pas encore publié.
-4. **Projet Laravel créé le 17 novembre** dans `backend/` (Laravel 13.42, starter kit Livewire, Pest, SQLite, sans Boost), moteur installé, clé générée dans `backend/.env` (empreinte `95df3bfb…c16ee`), `babel:verifier` « Tout est prêt », 38 tests Pest verts. `install:api` fait (issue #6) : Sanctum 4, `routes/api.php` avec noms préfixés `api.`, trait `HasApiTokens` sur `User`, table `personal_access_tokens`. Pas encore fait : migrations du MLD, F3/F5/F7, routes, Filament.
+4. **Projet Laravel créé le 17 novembre** dans `backend/` (Laravel 13.42, starter kit Livewire, Pest, SQLite, sans Boost), moteur installé, clé générée dans `backend/.env` (empreinte `95df3bfb…c16ee`), `babel:verifier` « Tout est prêt », 38 tests Pest verts. `install:api` fait (issue #6) : Sanctum 4, `routes/api.php` avec noms préfixés `api.`, trait `HasApiTokens` sur `User`, table `personal_access_tokens`. F3 fait (issue #8) : `App\Babel\Normaliseur` (`normaliser()`, `normaliserPage()`), testé dans `tests/Unit/NormaliseurTest.php`. Pas encore fait : migrations du MLD, F5/F7, routes, Filament.
 5. Le starter kit a créé `backend/.github/` (workflows) : dans un monorepo, GitHub ne lit que le `.github/` de la racine, donc ces workflows ne tournent pas (à régler au cours d'intégration continue du 20 novembre).
 
 ## Suivi du travail sur GitHub
@@ -42,7 +42,7 @@ Le réseau : **10 bibliothèques**, codées séparément, qui se parlent via une
 
 - **Back** (`backend/`) : Laravel, PHP 8.3+ avec **GMP**, Filament (back-office), API REST + **OpenAPI**, **Sanctum / OAuth2 / JWT**, **Pest**, **Reverb**, **SQLite** au départ.
 - **Front** (`frontend/`) : Angular + TypeScript, Tailwind CSS, signals, RxJS, intercepteurs et guards, Echo + Reverb, SSR.
-- Outils : Git, Composer, Laravel installer, Node LTS. Vérifier : `php -v`, `php -m` (gmp), `composer -V`, `laravel --version`, `node -v`, `git --version`.
+- Outils : Git, Composer, Laravel installer, Node LTS. Vérifier : `php -v`, `php -m` (gmp, intl pour F3), `composer -V`, `laravel --version`, `node -v`, `git --version`.
 
 ## Le moteur (fourni, boîte noire)
 

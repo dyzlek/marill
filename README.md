@@ -31,7 +31,7 @@ Le suivi détaillé est sur le [tableau du projet](https://github.com/users/dyzl
 
 ## Démarrer
 
-Prérequis : PHP 8.3+ avec l'extension `gmp`, Composer, Node.js 22+.
+Prérequis : PHP 8.3+ avec les extensions `gmp`, `intl` et `mbstring`, Composer, Node.js 22+.
 
 ```bash
 git clone https://github.com/dyzlek/marill.git
