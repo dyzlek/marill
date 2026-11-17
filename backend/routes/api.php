@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\RechercheController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,9 @@ Route::name('api.')->group(function () {
     Route::apiResource('pages', PageController::class)
         ->only('show')
         ->parameters(['pages' => 'adresse']);
+
+    // Recherche publique (V4, V5, V6, B2). POST plutôt que GET : un texte de 3 200 caractères accentués,
+    // encodé dans l'URL, dépasserait la limite de longueur de beaucoup de serveurs. Rien n'est enregistré : 200.
+    // Le chemin exact sera fixé par le contrat d'API commun.
+    Route::post('recherche', RechercheController::class)->name('recherche');
 });

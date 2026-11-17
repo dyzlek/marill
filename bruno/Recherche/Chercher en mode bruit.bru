@@ -1,0 +1,29 @@
+meta {
+  name: Chercher en mode bruit
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/recherche
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "texte": "Où est passé l'été ?",
+    "mode": "bruit"
+  }
+}
+
+tests {
+  test("200 en mode bruit", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().data.mode).to.equal("bruit");
+  });
+}

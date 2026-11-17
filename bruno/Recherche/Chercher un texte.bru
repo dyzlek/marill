@@ -1,0 +1,35 @@
+meta {
+  name: Chercher un texte
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/recherche
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "texte": "Où est passé l'été ?",
+    "mode": "exact"
+  }
+}
+
+tests {
+  test("200 avec le texte normalisé et une adresse", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().data.texte).to.equal("ou est passe l ete");
+    expect(res.getBody().data.mode).to.equal("exact");
+    expect(res.getBody().data.adresse).to.match(/^[0-9a-z]+-w[1-4]-s[1-5]-v\d+:\d+$/);
+  });
+}
+
+docs {
+  V4 · V5 · V6 · B2 : chercher un texte. Route publique, sans jeton. Modes : exact ou bruit.
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Texte vide et mode inconnu
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/recherche
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "texte": "",
+    "mode": "flou"
+  }
+}
+
+tests {
+  test("422 avec les deux erreurs au format commun", function () {
+    expect(res.getStatus()).to.equal(422);
+    const codes = res.getBody().erreurs.map((e) => e.code);
+    expect(codes).to.eql(["ERR_EMPTY_QUERY", "ERR_UNKNOWN_MODE"]);
+  });
+}
