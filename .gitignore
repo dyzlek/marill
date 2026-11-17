@@ -1,8 +1,13 @@
 # Journal local de Claude (ne jamais pousser)
 .claude/
 
-# Dépôt séparé, géré à part
+# Dépôts séparés, gérés à part
 laravel-babel/
+cineclub/
+tuto-laravel-0-4/
+
+# PDF de l'enseignant (gardé en local)
+*cahier-des-charges*.pdf
 
 # Systèmes et éditeurs
 .DS_Store
@@ -10,12 +15,16 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Dépendances et builds (projets Laravel / Angular à venir)
-/vendor/
-/node_modules/
-/dist/
-/public/build/
-/storage/*.key
+# Dépendances et builds (Laravel dans backend/, Angular dans frontend/)
+vendor/
+node_modules/
+dist/
+.angular/
+backend/public/build/
+backend/public/hot
+backend/storage/*.key
+*.sqlite
+*.sqlite-journal
 
 # Secrets et fichiers d'environnement
 .env

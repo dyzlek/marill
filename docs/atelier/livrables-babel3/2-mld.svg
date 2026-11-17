@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1150" viewBox="0 0 1800 1150" font-family="Segoe UI, Arial, sans-serif">
+<defs><marker id="ar" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto"><path d="M0,0 L12,5 L0,10 z" fill="#333"/></marker></defs>
+<rect width="1800" height="1150" fill="#fff"/>
+<line x1="490.0" y1="170.5" x2="410.0" y2="164.5" stroke="#333" stroke-width="1.8"/>
+<line x1="670.0" y1="288.0" x2="670.0" y2="380.0" stroke="#333" stroke-width="1.8"/>
+<line x1="938.6" y1="288.0" x2="787.0" y2="380.0" stroke="#333" stroke-width="1.8"/>
+<line x1="817.1" y1="288.0" x2="947.3" y2="380.0" stroke="#333" stroke-width="1.8"/>
+<line x1="1110.0" y1="288.0" x2="1110.0" y2="380.0" stroke="#333" stroke-width="1.8"/>
+<line x1="1274.6" y1="288.0" x2="1420.2" y2="380.0" stroke="#333" stroke-width="1.8"/>
+<line x1="850.0" y1="240.9" x2="1370.0" y2="405.1" stroke="#333" stroke-width="1.8"/>
+<line x1="1290.0" y1="481.5" x2="1370.0" y2="475.5" stroke="#333" stroke-width="1.8"/>
+<line x1="230.0" y1="222.0" x2="230.0" y2="380.0" stroke="#333" stroke-width="1.8"/>
+<line x1="230.0" y1="680.0" x2="230.0" y2="566.0" stroke="#333" stroke-width="1.8"/>
+<line x1="410.0" y1="779.5" x2="490.0" y2="777.5" stroke="#333" stroke-width="1.8"/>
+<line x1="230.0" y1="888.0" x2="230.0" y2="930.0" stroke="#333" stroke-width="1.8"/>
+<rect x="50" y="80" width="360" height="142" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M50,114 V84 Q50,80 54,80 H406 Q410,80 410,84 V114 z" fill="#1f4e79"/>
+<text x="230.0" y="103" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">RECHERCHE</text>
+<text x="62" y="136" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="62" y="158" font-size="14" fill="#111">utilisateur_id (→ UTILISATEUR, peut être vide)</text>
+<text x="62" y="180" font-size="14" fill="#111">texte</text>
+<text x="62" y="202" font-size="14" fill="#111">créée_le</text>
+<rect x="490" y="80" width="360" height="208" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M490,114 V84 Q490,80 494,80 H846 Q850,80 850,84 V114 z" fill="#1f4e79"/>
+<text x="670.0" y="103" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">UTILISATEUR</text>
+<text x="502" y="136" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="502" y="158" font-size="14" fill="#111">nom</text>
+<text x="502" y="180" font-size="14" fill="#111">email (unique)</text>
+<text x="502" y="202" font-size="14" fill="#111">mot_de_passe_hash</text>
+<text x="502" y="224" font-size="14" fill="#111">rôle (membre | admin)</text>
+<text x="502" y="246" font-size="14" fill="#111">suspendu</text>
+<text x="502" y="268" font-size="14" fill="#111">créé_le</text>
+<rect x="930" y="80" width="360" height="208" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M930,114 V84 Q930,80 934,80 H1286 Q1290,80 1290,84 V114 z" fill="#1f4e79"/>
+<text x="1110.0" y="103" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">ADRESSE</text>
+<text x="942" y="136" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="942" y="158" font-size="14" fill="#111">empreinte (unique, taille fixe)</text>
+<text x="942" y="180" font-size="14" fill="#111">hexagone (texte long)</text>
+<text x="942" y="202" font-size="14" fill="#111">mur</text>
+<text x="942" y="224" font-size="14" fill="#111">étagère</text>
+<text x="942" y="246" font-size="14" fill="#111">volume</text>
+<text x="942" y="268" font-size="14" fill="#111">page</text>
+<rect x="1370" y="80" width="360" height="190" fill="#fff8dc" stroke="#b8a04a" stroke-width="1.5" rx="4"/>
+<text x="1382" y="106" font-size="13.5" fill="#333" font-weight="700">Choix de conception</text>
+<text x="1382" y="127" font-size="13.5" fill="#333">Aucune page n&#x27;est stockée : seule l&#x27;adresse l&#x27;est.</text>
+<text x="1382" y="148" font-size="13.5" fill="#333">La clé secrète n&#x27;est pas en base (configuration).</text>
+<text x="1382" y="169" font-size="13.5" fill="#333">Une adresse n&#x27;existe en base que si elle est citée</text>
+<text x="1382" y="190" font-size="13.5" fill="#333">(favori, signalement, masquage).</text>
+<text x="1382" y="211" font-size="13.5" fill="#333">L&#x27;empreinte identifie les adresses de 3 000+ car.</text>
+<text x="1382" y="232" font-size="13.5" fill="#333"># = identifiant   → = clé étrangère</text>
+<rect x="50" y="380" width="360" height="186" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M50,414 V384 Q50,380 54,380 H406 Q410,380 410,384 V414 z" fill="#1f4e79"/>
+<text x="230.0" y="403" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">RESULTAT_RECHERCHE</text>
+<text x="62" y="436" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="62" y="458" font-size="14" fill="#111">recherche_id (→ RECHERCHE)</text>
+<text x="62" y="480" font-size="14" fill="#111">bibliotheque_id (→ BIBLIOTHEQUE, vide = locale)</text>
+<text x="62" y="502" font-size="14" fill="#111">statut (ok|expirée|invalide|injoignable)</text>
+<text x="62" y="524" font-size="14" fill="#111">adresse_trouvée (texte reçu)</text>
+<text x="62" y="546" font-size="14" fill="#111">durée_ms</text>
+<rect x="490" y="380" width="360" height="142" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M490,414 V384 Q490,380 494,380 H846 Q850,380 850,384 V414 z" fill="#1f4e79"/>
+<text x="670.0" y="403" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">FAVORI</text>
+<text x="502" y="436" font-size="14" fill="#111" font-weight="700"># utilisateur_id (→ UTILISATEUR)</text>
+<text x="502" y="458" font-size="14" fill="#111" font-weight="700"># adresse_id (→ ADRESSE)</text>
+<text x="502" y="480" font-size="14" fill="#111">note</text>
+<text x="502" y="502" font-size="14" fill="#111">ajouté_le</text>
+<rect x="930" y="380" width="360" height="230" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M930,414 V384 Q930,380 934,380 H1286 Q1290,380 1290,384 V414 z" fill="#1f4e79"/>
+<text x="1110.0" y="403" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">SIGNALEMENT</text>
+<text x="942" y="436" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="942" y="458" font-size="14" fill="#111">utilisateur_id (→ auteur)</text>
+<text x="942" y="480" font-size="14" fill="#111">adresse_id (→ ADRESSE)</text>
+<text x="942" y="502" font-size="14" fill="#111">masquage_id (→ MASQUAGE, peut être vide)</text>
+<text x="942" y="524" font-size="14" fill="#111">motif</text>
+<text x="942" y="546" font-size="14" fill="#111">statut (attente|accepté|refusé)</text>
+<text x="942" y="568" font-size="14" fill="#111">créé_le</text>
+<text x="942" y="590" font-size="14" fill="#111">unique (utilisateur_id, adresse_id)</text>
+<rect x="1370" y="380" width="360" height="164" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M1370,414 V384 Q1370,380 1374,380 H1726 Q1730,380 1730,384 V414 z" fill="#1f4e79"/>
+<text x="1550.0" y="403" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">MASQUAGE</text>
+<text x="1382" y="436" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="1382" y="458" font-size="14" fill="#111">adresse_id (→ ADRESSE, unique)</text>
+<text x="1382" y="480" font-size="14" fill="#111">admin_id (→ UTILISATEUR)</text>
+<text x="1382" y="502" font-size="14" fill="#111">motif</text>
+<text x="1382" y="524" font-size="14" fill="#111">masqué_le</text>
+<rect x="50" y="680" width="360" height="208" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M50,714 V684 Q50,680 54,680 H406 Q410,680 410,684 V714 z" fill="#1f4e79"/>
+<text x="230.0" y="703" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">BIBLIOTHEQUE_VOISINE</text>
+<text x="62" y="736" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="62" y="758" font-size="14" fill="#111">nom</text>
+<text x="62" y="780" font-size="14" fill="#111">url_base</text>
+<text x="62" y="802" font-size="14" fill="#111">statut (active|suspecte|injoignable|suspendue)</text>
+<text x="62" y="824" font-size="14" fill="#111">latence_moy_ms</text>
+<text x="62" y="846" font-size="14" fill="#111">échecs_consécutifs</text>
+<text x="62" y="868" font-size="14" fill="#111">dernière_réponse_le</text>
+<rect x="490" y="680" width="360" height="186" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M490,714 V684 Q490,680 494,680 H846 Q850,680 850,684 V714 z" fill="#1f4e79"/>
+<text x="670.0" y="703" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">JETON_API</text>
+<text x="502" y="736" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="502" y="758" font-size="14" fill="#111">bibliotheque_id (→ BIBLIOTHEQUE)</text>
+<text x="502" y="780" font-size="14" fill="#111">empreinte_jeton (jamais le jeton)</text>
+<text x="502" y="802" font-size="14" fill="#111">portée</text>
+<text x="502" y="824" font-size="14" fill="#111">expire_le</text>
+<text x="502" y="846" font-size="14" fill="#111">révoqué</text>
+<rect x="50" y="930" width="360" height="208" fill="#fff" stroke="#1f4e79" stroke-width="2" rx="4"/>
+<path d="M50,964 V934 Q50,930 54,930 H406 Q410,930 410,934 V964 z" fill="#1f4e79"/>
+<text x="230.0" y="953" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">JOURNAL_APPEL</text>
+<text x="62" y="986" font-size="14" fill="#111" font-weight="700"># id</text>
+<text x="62" y="1008" font-size="14" fill="#111">bibliotheque_id (→ BIBLIOTHEQUE)</text>
+<text x="62" y="1030" font-size="14" fill="#111">sens (entrant|sortant)</text>
+<text x="62" y="1052" font-size="14" fill="#111">route</text>
+<text x="62" y="1074" font-size="14" fill="#111">code_http</text>
+<text x="62" y="1096" font-size="14" fill="#111">durée_ms</text>
+<text x="62" y="1118" font-size="14" fill="#111">créé_le</text>
+<rect x="424.25" y="156.5" width="51.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="450.0" y="172.5" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">lance</text>
+<rect x="461.8" y="158.66" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="478.8" y="173.66" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="404.2" y="154.34" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="421.2" y="169.34" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,1</text>
+<rect x="644.25" y="323.0" width="51.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="670.0" y="339.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">garde</text>
+<rect x="653.0" y="289.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="670.0" y="304.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="653.0" y="356.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="670.0" y="371.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="818.3089887640449" y="323.0" width="89.0" height="22" fill="#fff" stroke="#999" rx="11"/><text x="862.8089887640449" y="339.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">est gardée</text>
+<rect x="900.3887640449437" y="289.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="917.3887640449437" y="304.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="791.229213483146" y="356.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="808.229213483146" y="371.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="848.9686495176849" y="323.0" width="66.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="882.2186495176849" y="339.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">signale</text>
+<rect x="818.36077170418" y="289.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="835.36077170418" y="304.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="912.0765273311897" y="356.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="929.0765273311897" y="371.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="1058.0" y="323.0" width="104.0" height="22" fill="#fff" stroke="#999" rx="11"/><text x="1110.0" y="339.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">est signalée</text>
+<rect x="1093.0" y="289.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1110.0" y="304.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="1093.0" y="356.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1110.0" y="371.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="1299.160071942446" y="323.0" width="96.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="1347.410071942446" y="339.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">est masquée</text>
+<rect x="1277.989928057554" y="289.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1294.989928057554" y="304.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,1</text>
+<rect x="1382.8302158273382" y="356.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1399.8302158273382" y="371.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="1080.5" y="312.0" width="59.0" height="22" fill="#fff" stroke="#999" rx="11"/><text x="1110.0" y="328.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">décide</text>
+<rect x="905.8" y="252.8618181818182" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="922.8" y="267.8618181818182" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="1280.2" y="371.1381818181818" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1297.2" y="386.1381818181818" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="1289.25" y="467.5" width="81.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="1330.0" y="483.5" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">aboutit à</text>
+<rect x="1284.2" y="469.66" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1301.2" y="484.66" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,1</text>
+<rect x="1341.8" y="465.34" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="1358.8" y="480.34" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="196.75" y="290.0" width="66.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="230.0" y="306.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">obtient</text>
+<rect x="213.0" y="233.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="230.0" y="248.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,n</text>
+<rect x="213.0" y="346.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="230.0" y="361.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="200.5" y="612.0" width="59.0" height="22" fill="#fff" stroke="#999" rx="11"/><text x="230.0" y="628.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">répond</text>
+<rect x="213.0" y="653.04" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="230.0" y="668.04" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="213.0" y="570.96" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="230.0" y="585.96" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,1</text>
+<rect x="416.75" y="767.5" width="66.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="450.0" y="783.5" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">détient</text>
+<rect x="404.2" y="768.22" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="421.2" y="783.22" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="461.8" y="766.78" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="478.8" y="781.78" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+<rect x="196.75" y="898.0" width="66.5" height="22" fill="#fff" stroke="#999" rx="11"/><text x="230.0" y="914.0" text-anchor="middle" font-size="12.5" font-style="italic" fill="#333">échange</text>
+<rect x="213.0" y="882.88" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="230.0" y="897.88" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">0,n</text>
+<rect x="213.0" y="913.12" width="34" height="20" fill="#fff" stroke="#1f4e79" rx="4"/><text x="230.0" y="928.12" text-anchor="middle" font-size="13" font-weight="700" fill="#1f4e79">1,1</text>
+</svg>

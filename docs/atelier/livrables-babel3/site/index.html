@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Babel 3 : la bibliothèque et nos choix</title>
+<style>
+  :root { --ink:#1b2432; --paper:#fff; --soft:#f3efe6; --line:#d8d3c6; --amber:#d9902f; --teal:#2f7f86; --red:#b5483a; --mute:#5d6675; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#eef1f6; --paper:#141b27; --soft:#1e2838; --line:#33425a; --mute:#a2acbd; --teal:#58b7bf; --amber:#e9a64a; --red:#e07a6b; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:17px/1.6 Calibri, "Segoe UI", system-ui, sans-serif; }
+  h1,h2,h3 { font-family: Cambria, Georgia, serif; line-height:1.2; }
+  header.hero { background:#1b2432; color:#fff; padding:96px 24px 72px; }
+  .wrap { max-width:1000px; margin:0 auto; padding:0 24px; }
+  .hero .wrap { padding:0; }
+  .kicker { color:var(--amber); font-weight:700; letter-spacing:.15em; text-transform:uppercase; font-size:13px; margin:0 0 8px; }
+  .hero h1 { font-size:clamp(32px,6vw,56px); margin:0 0 12px; }
+  .hero p.sub { font-size:22px; font-style:italic; color:#cadcfc; margin:0; font-family:Cambria,Georgia,serif; }
+  nav { position:sticky; top:0; z-index:5; background:var(--paper); border-bottom:1px solid var(--line); }
+  nav .wrap { display:flex; gap:20px; overflow-x:auto; padding-top:12px; padding-bottom:12px; white-space:nowrap; }
+  nav a { color:var(--mute); text-decoration:none; font-size:15px; font-weight:600; }
+  nav a:hover { color:var(--teal); }
+  section { padding:56px 0; border-bottom:1px solid var(--line); }
+  section h2 { font-size:clamp(26px,4vw,36px); margin:0 0 20px; }
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
+  .card h3 { margin:0 0 8px; font-size:19px; }
+  .card p { margin:0; font-size:16px; }
+  .t { color:var(--teal) } .a { color:var(--amber) } .r { color:var(--red) }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-top:28px; }
+  .stat b { display:block; font-family:Cambria,Georgia,serif; font-size:44px; color:var(--teal); line-height:1.1; }
+  .stat span { color:var(--mute); font-size:15px; }
+  .key { background:#1b2432; color:#fff; border-radius:16px; padding:32px; }
+  .key .big { font-family:Cambria,Georgia,serif; font-size:clamp(44px,9vw,76px); color:#e9a64a; font-weight:700; line-height:1; }
+  .key ul { padding-left:20px; margin:12px 0 0; } .key li { margin-bottom:8px; }
+  table { width:100%; border-collapse:collapse; font-size:16px; display:block; overflow-x:auto; }
+  th,td { padding:10px 12px; border:1px solid var(--line); text-align:center; }
+  th:first-child, td:first-child { text-align:left; font-weight:600; }
+  thead th { background:#1b2432; color:#fff; }
+  .yes { color:var(--teal); font-weight:700; } .no { color:var(--mute); opacity:.6; }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; counter-reset:s; }
+  .step { counter-increment:s; background:var(--soft); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  .step::before { content:counter(s); display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--amber); color:#fff; font-weight:700; margin-bottom:10px; }
+  .step:nth-child(even)::before { background:var(--teal); }
+  .step h3 { margin:0 0 6px; font-size:18px; } .step p { margin:0; font-size:15px; } .step em { color:var(--mute); font-size:14px; }
+  figure { margin:20px 0 0; } figure img { width:100%; height:auto; border:1px solid var(--line); border-radius:8px; background:#fff; cursor:zoom-in; }
+  figcaption { color:var(--mute); font-size:14px; margin-top:6px; }
+  dl.qa dt { font-family:Cambria,Georgia,serif; font-weight:700; color:var(--amber); font-size:19px; margin-top:20px; }
+  dl.qa dd { margin:4px 0 0; }
+  .note { color:var(--mute); font-style:italic; }
+  .todo li { margin-bottom:8px; }
+  footer { padding:32px 0 56px; color:var(--mute); font-size:14px; }
+  dialog { border:0; padding:0; max-width:96vw; background:transparent; } dialog::backdrop { background:rgba(0,0,0,.8); }
+  dialog img { max-width:96vw; max-height:92vh; background:#fff; }
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <p class="kicker">Projet fil rouge · R5.06 Back · Groupe Babel 3</p>
+  <h1>La Bibliothèque de Babel en réseau</h1>
+  <p class="sub">Ce qu'on a conçu, et pourquoi on l'a conçu comme ça</p>
+</div></header>
+
+<nav><div class="wrap">
+  <a href="#projet">Le projet</a><a href="#idee">L'idée clé</a><a href="#demarche">Démarche</a><a href="#stories">Stories</a>
+  <a href="#moteur">Moteur</a><a href="#mld">MLD</a><a href="#archi">Architecture</a><a href="#jury">Jury</a><a href="#ouvert">À trancher</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="projet">
+  <p class="kicker">Comprendre avant de défendre</p>
+  <h2>Le projet en une minute</h2>
+  <div class="grid">
+    <div class="card"><h3>L'idée</h3><p>Borges : une bibliothèque contient toutes les pages possibles. Chaque adresse donne une page de lettres sans sens, et une phrase peut s'y cacher.</p></div>
+    <div class="card"><h3>Le réseau</h3><p>10 bibliothèques, codées séparément, qui répondent exactement pareil à une API commune. Comme des instances Mastodon.</p></div>
+    <div class="card"><h3>Le moteur</h3><p>Fourni par l'enseignant le 17 nov. Il calcule une page à partir d'une adresse et d'une clé secrète. On ne le code pas.</p></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>29</b><span>symboles : a à z, espace, virgule, point</span></div>
+    <div class="stat"><b>3 200</b><span>caractères par page</span></div>
+    <div class="stat"><b>1 clé</b><span>secrète par bibliothèque</span></div>
+  </div>
+</section>
+
+<section id="idee">
+  <p class="kicker">La clé de tous nos choix</p>
+  <h2>On ne stocke jamais une page</h2>
+  <div class="key">
+    <div class="big">10<sup>4680</sup></div>
+    <p>pages possibles. Les stocker demanderait environ 1,5 × 10<sup>4671</sup> To. Donc :</p>
+    <ul>
+      <li>La page se recalcule à chaque fois : adresse + clé donnent toujours la même page.</li>
+      <li>En base, on garde seulement les adresses (marque-pages, signalements, masquages).</li>
+      <li>Masquer une page = la cacher, pas la supprimer : le moteur la recalculerait.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="demarche">
+  <p class="kicker">Notre démarche</p>
+  <h2>Quatre livrables qui s'enchaînent</h2>
+  <div class="steps">
+    <div class="step"><h3>User stories</h3><p>Qui veut faire quoi, pour quoi faire.</p><em>On part des besoins.</em></div>
+    <div class="step"><h3>Fonctions du moteur</h3><p>Ce qu'on demande au moteur.</p><em>Chaque story qui touche une page y mène.</em></div>
+    <div class="step"><h3>MLD</h3><p>Ce que notre base garde.</p><em>Les données que les stories exigent.</em></div>
+    <div class="step"><h3>Architecture</h3><p>Qui appelle qui, avec quelles données.</p><em>Tout assemblé dans un schéma.</em></div>
+  </div>
+  <p class="note">Aucune techno choisie à ce stade. Exemple de chaîne : la story « page au hasard » donne la fonction « tirer une adresse au hasard ».</p>
+</section>
+
+<section id="stories">
+  <p class="kicker">Livrable 1 · 31 stories, 5 rôles</p>
+  <h2>Qui peut faire quoi</h2>
+  <table>
+    <thead><tr><th>Capacité</th><th>Visiteur</th><th>Membre</th><th>Admin</th><th>Autre biblio</th></tr></thead>
+    <tbody>
+      <tr><td>Ouvrir une page, chercher une phrase</td><td class="yes">oui</td><td class="yes">oui</td><td class="yes">oui</td><td class="yes">oui</td></tr>
+      <tr><td>Page au hasard, page voisine</td><td class="yes">oui</td><td class="yes">oui</td><td class="yes">oui</td><td class="no">non</td></tr>
+      <tr><td>Partager une page par lien</td><td class="yes">oui</td><td class="yes">oui</td><td class="yes">oui</td><td class="no">non</td></tr>
+      <tr><td>Marque-pages, collections, historique</td><td class="no">non</td><td class="yes">oui</td><td class="no">non</td><td class="no">non</td></tr>
+      <tr><td>Signaler une page</td><td class="no">non</td><td class="yes">oui</td><td class="no">non</td><td class="no">non</td></tr>
+      <tr><td>Rechercher sur le réseau</td><td class="no">non</td><td class="yes">oui</td><td class="no">non</td><td class="no">non</td></tr>
+      <tr><td>Masquer une page, gérer voisines et jetons</td><td class="no">non</td><td class="no">non</td><td class="yes">oui</td><td class="no">non</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Cinquième rôle ajouté : la Plateforme de l'enseignant (annuaire et testeur de conformité).</p>
+  <h3>Pourquoi ces choix</h3>
+  <div class="grid">
+    <div class="card"><h3 class="a">Le compte apporte de la mémoire</h3><p>Marque-pages, collections, historique : ce qui demande de se souvenir de quelqu'un. Lire reste libre pour tous.</p></div>
+    <div class="card"><h3 class="a">Seul un membre signale</h3><p>On identifie qui signale : moins d'abus, un signalement par page et par membre.</p></div>
+    <div class="card"><h3 class="a">Recherche réseau pour les membres</h3><p>Chaque recherche coûte des appels aux 9 voisines. On limite la charge, la nôtre et la leur.</p></div>
+    <div class="card"><h3 class="a">Le réseau apporte la comparaison</h3><p>Chaque bibliothèque contient tout, mais avec une clé différente : une même phrase donne une adresse différente chez chacune.</p></div>
+  </div>
+</section>
+
+<section id="moteur">
+  <p class="kicker">Livrable 2 · besoins, pas algorithme</p>
+  <h2>Ce qu'on demande au moteur</h2>
+  <div class="grid">
+    <div class="card"><h3 class="t">Les adresses</h3><p>Analyser · Valider · Formater (une seule écriture) · Adresse voisine · Empreinte</p></div>
+    <div class="card"><h3 class="a">Les pages</h3><p>Générer une page (3 200 car.) · Trouver l'adresse d'une phrase · Normaliser une saisie · Tirer au hasard</p></div>
+    <div class="card"><h3 class="r">La protection</h3><p>Vérifier la conformité d'une page reçue d'une voisine.</p></div>
+  </div>
+  <p>Chaque fonction a : entrées, sortie, erreurs possibles, garanties. Le moteur ne fait pas : masquer, appeler les voisines, authentifier, garder la clé.</p>
+  <h3>Les garanties exigées</h3>
+  <div class="grid">
+    <div class="card"><h3 class="t">Déterminisme</h3><p>Même adresse + même clé = même page, aujourd'hui comme dans un an. Sinon un marque-page ne sert à rien.</p></div>
+    <div class="card"><h3 class="a">Une seule écriture d'adresse</h3><p>w4 et w04 désignent la même page. On refuse l'une, sinon favoris, signalements et caches se dédoublent.</p></div>
+    <div class="card"><h3 class="r">Clé secrète hors de portée</h3><p>Dans la configuration serveur, jamais en base, jamais dans une réponse ou un journal.</p></div>
+    <div class="card"><h3 class="t">Conformité sans comparer les textes</h3><p>Chaque clé donne d'autres pages. On vérifie des propriétés : 3 200 caractères, alphabet, phrase présente.</p></div>
+  </div>
+</section>
+
+<section id="mld">
+  <p class="kicker">Livrable 3 · 11 tables</p>
+  <h2>Ce que garde notre base</h2>
+  <figure><img src="3-mld.png" alt="MLD de la bibliothèque : 11 tables et leurs associations"><figcaption>Cliquer pour agrandir.</figcaption></figure>
+  <h3>Les choix à défendre</h3>
+  <ul>
+    <li>Aucune page stockée : seule l'adresse l'est, le texte se recalcule.</li>
+    <li>La clé secrète n'est pas en base : elle reste dans la configuration serveur.</li>
+    <li>ADRESSE est la table centrale : une adresse n'existe en base que si quelqu'un la cite.</li>
+    <li>Une empreinte de taille fixe retrouve vite les hexagones de plus de 3 000 caractères.</li>
+    <li>Une page d'une autre bibliothèque pointe vers BIBLIOTHEQUE par son id, pas par son URL : si l'URL change, rien ne casse.</li>
+    <li>Un signalement vise une adresse ; l'admin le traite et passe son statut à « masquée » : rien n'est supprimé.</li>
+  </ul>
+</section>
+
+<section id="archi">
+  <p class="kicker">Livrable 4 · diagramme de conteneurs C4</p>
+  <h2>Qui appelle qui</h2>
+  <figure><img src="4-architecture-c4.png" alt="Diagramme C4 des conteneurs"><figcaption>Lire en trois temps : personnes en haut, notre bibliothèque dans le cadre pointillé, systèmes externes à droite. Cliquer pour agrandir.</figcaption></figure>
+  <div class="grid" style="margin-top:20px">
+    <div class="card"><h3 class="t">Une seule API publique</h3><p>Authentification, validation, limite de débit et masquages appliqués au même endroit.</p></div>
+    <div class="card"><h3 class="a">Un agrégateur en parallèle</h3><p>Les 9 voisines sont interrogées en même temps, avec un délai max : une lente ne bloque pas les autres.</p></div>
+    <div class="card"><h3 class="t">Un cache à durée courte</h3><p>Évite de rappeler les voisines pour la même phrase.</p></div>
+    <div class="card"><h3 class="a">Un diffuseur temps réel</h3><p>Les résultats arrivent au fil de l'eau, une page masquée disparaît aussitôt.</p></div>
+  </div>
+</section>
+
+<section id="jury">
+  <p class="kicker">Anticiper le jury</p>
+  <h2>Les cas difficiles du sujet</h2>
+  <dl class="qa">
+    <dt>Une page qui choque ?</dt><dd>Signalement par un membre, décision de l'admin, masquage valable partout (recherche, liens, API).</dd>
+    <dt>Une adresse mal écrite ?</dt><dd>Validation avant toute lecture, message qui nomme l'élément fautif, aucune page affichée.</dd>
+    <dt>Une bibliothèque éteinte ou lente ?</dt><dd>Délai max par voisine, statut visible, passage en « suspecte » après N échecs.</dd>
+    <dt>Une qui répond n'importe quoi ?</dt><dd>Vérification de conformité sur chaque réponse, suspension par l'admin.</dd>
+    <dt>La clé secrète ?</dt><dd>Dans la config serveur, vue par le seul moteur, jamais dans une réponse.</dd>
+  </dl>
+  <p class="note">Pour chaque réponse : savoir à quelle story ou fonction elle renvoie, et dire si vous la maintenez.</p>
+</section>
+
+<section id="ouvert" style="border-bottom:0">
+  <p class="kicker">Avant jeudi 11h30</p>
+  <h2>Ce qu'il reste à trancher</h2>
+  <ol class="todo">
+    <li>Lien court ou adresse complète pour partager ? Une adresse peut dépasser 3 000 caractères, un lien court demande de stocker la correspondance.</li>
+    <li>Un visiteur peut-il rechercher sur le réseau ? Ici non, pour limiter la charge sur les voisines.</li>
+    <li>Partager une collection fait-il apparaître le nom du membre ?</li>
+    <li>Une phrase à cheval sur deux pages : possible ? À demander à l'enseignant.</li>
+  </ol>
+  <p class="note">Décidez, puis écrivez pourquoi : c'est ce que le jury demandera. Voir aussi 6-guide-oral.md.</p>
+</section>
+</main>
+
+<footer><div class="wrap">Babel 3 · BUT MMI 3 · R5.06 · brouillon à défendre à l'oral</div></footer>
+
+<dialog id="zoom"><img alt=""></dialog>
+<script>
+  const d = document.getElementById('zoom'), di = d.querySelector('img');
+  document.querySelectorAll('figure img').forEach(i => i.addEventListener('click', () => { di.src = i.src; d.showModal(); }));
+  d.addEventListener('click', () => d.close());
+</script>
+</body>
+</html>

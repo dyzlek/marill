@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Télécommande</title>
+<style>
+  :root { --bg:#f3f4f6; --fg:#14161a; --muted:#5d6470; --panel:#fff; --line:#d6d9df; --accent:#1f4fd8; color-scheme: light dark; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14161a; --fg:#eef0f3; --muted:#9aa1ad; --panel:#1d2026; --line:#343942; --accent:#7f9cff; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px system-ui, sans-serif; padding:24px 16px; }
+  main { max-width:520px; margin:0 auto; display:grid; gap:16px; }
+  h1 { font-size:24px; margin:0; }
+  .apercu { height:140px; border-radius:10px; border:1px solid var(--line); background:#1f4fd8; transition:background-color .25s; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; display:grid; gap:16px; }
+  .row { display:flex; gap:12px; align-items:end; flex-wrap:wrap; }
+  label { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:6px; }
+  input[type=color] { width:72px; height:48px; padding:0; border:1px solid var(--line); border-radius:8px; background:none; }
+  input[type=text] { font:16px ui-monospace, Consolas, monospace; width:9ch; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--fg); }
+  .sw { display:grid; grid-template-columns:repeat(auto-fill,minmax(52px,1fr)); gap:10px; }
+  .sw button { aspect-ratio:1; border-radius:8px; border:1px solid var(--line); background:var(--c); cursor:pointer; padding:0; }
+  .alarme { padding:16px; border-radius:10px; border:0; font:600 18px system-ui, sans-serif; cursor:pointer; background:#c0392b; color:#fff; }
+  .alarme.on { background:#14161a; border:2px solid #c0392b; }
+  .etat { font-size:13px; color:var(--muted); min-height:1.4em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Télécommande de fond</h1>
+  <div class="apercu" id="apercu"></div>
+  <button class="alarme" id="alarme" type="button">Déclencher l'alarme</button>
+  <section class="panel">
+    <div class="row">
+      <div><label for="picker">Sélecteur</label><input type="color" id="picker" value="#1f4fd8"></div>
+      <div><label for="hex">Code hexadécimal</label><input type="text" id="hex" value="#1F4FD8" maxlength="7" spellcheck="false" autocomplete="off"></div>
+    </div>
+    <div><label>Couleurs rapides</label><div class="sw" id="sw"></div></div>
+    <div class="etat" id="etat" role="status"></div>
+  </section>
+</main>
+<script>
+  const cle = new URLSearchParams(location.search).get("cle") || "";
+  const $ = (id) => document.getElementById(id);
+  const valide = (h) => /^#[0-9a-fA-F]{6}$/.test(h);
+  let courant = "#1f4fd8", enCours = false, attente = null, tPick;
+
+  function afficher(c) {
+    courant = c.toLowerCase();
+    $("apercu").style.background = courant;
+    $("picker").value = courant;
+    if (document.activeElement !== $("hex")) $("hex").value = courant.toUpperCase();
+  }
+  async function envoyer(c) {
+    attente = c;
+    if (enCours) return;
+    enCours = true;
+    while (attente) {
+      const v = attente; attente = null;
+      try {
+        const r = await fetch("/couleur", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cle, couleur: v }) });
+        $("etat").textContent = r.ok ? "Envoyé : " + v.toUpperCase() : r.status === 403 ? "Clé invalide : utilise le lien complet affiché dans le terminal." : "Erreur " + r.status;
+      } catch { $("etat").textContent = "Serveur injoignable."; }
+    }
+    enCours = false;
+  }
+  function choisir(c) { if (!valide(c)) return; afficher(c); envoyer(c); }
+
+  ["#e63946", "#f4a261", "#f2c14e", "#2a9d8f", "#1f4fd8", "#6a4c93", "#ff6fa5", "#ffffff", "#111111"].forEach((c) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.style.setProperty("--c", c); b.setAttribute("aria-label", "Couleur " + c);
+    b.onclick = () => choisir(c);
+    $("sw").appendChild(b);
+  });
+  $("picker").oninput = (e) => { afficher(e.target.value); clearTimeout(tPick); tPick = setTimeout(() => choisir(e.target.value), 120); };
+  $("hex").oninput = (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (valide(v)) choisir(v); };
+  $("hex").onblur = () => { $("hex").value = courant.toUpperCase(); };
+  let alarmeOn = false;
+  $("alarme").onclick = async () => {
+    try {
+      const r = await fetch("/alarme", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cle, active: !alarmeOn }) });
+      if (!r.ok) $("etat").textContent = r.status === 403 ? "Clé invalide : utilise le lien complet affiché dans le terminal." : "Erreur " + r.status;
+    } catch { $("etat").textContent = "Serveur injoignable."; }
+  };
+  new EventSource("/events").onmessage = (e) => {
+    const d = JSON.parse(e.data);
+    afficher(d.couleur);
+    alarmeOn = d.alarme;
+    $("alarme").textContent = alarmeOn ? "Arrêter l'alarme" : "Déclencher l'alarme";
+    $("alarme").classList.toggle("on", alarmeOn);
+  };
+</script>
+</body>
+</html>

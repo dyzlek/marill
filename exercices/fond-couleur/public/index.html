@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Afficheur</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { background: #1f4fd8; color: #fff; font: 14px ui-monospace, Consolas, monospace; transition: background-color .35s; }
+  #hex { position: fixed; left: 16px; bottom: 16px; letter-spacing: .08em; opacity: .85; transition: opacity .3s; }
+  #hex.calme { opacity: 0; }
+  #son { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); padding: 8px 14px; border-radius: 8px; background: #000a; color: #fff; font: 14px system-ui, sans-serif; }
+  #son[hidden] { display: none; }
+  body.alarme { animation: flash .5s steps(1) infinite; }
+  @keyframes flash { 0% { background: #e00000; } 50% { background: #fff; } }
+  @media (prefers-reduced-motion: reduce) { body.alarme { animation: none; background: #e00000 !important; } }
+</style>
+</head>
+<body>
+<div id="hex" class="calme">#1F4FD8</div>
+<div id="son" hidden>Touchez l'écran pour activer le son de l'alarme</div>
+<script>
+  const hex = document.getElementById("hex");
+  let t;
+  function montrer(c) {
+    const n = parseInt(c.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    document.body.style.background = c;
+    document.body.style.color = (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#111" : "#fff";
+    hex.textContent = c.toUpperCase();
+  }
+  function reveille() { hex.classList.remove("calme"); clearTimeout(t); t = setTimeout(() => hex.classList.add("calme"), 3000); }
+  let ctx = null, osc = null, sirene = null;
+  function sonOk() { return ctx && ctx.state === "running"; }
+  addEventListener("pointerdown", () => {
+    reveille();
+    try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume().then(majSon); } catch {}
+  });
+  function majSon() { $son.hidden = !(alarme && !sonOk()); if (alarme && sonOk() && !osc) demarrerSirene(); }
+  function demarrerSirene() {
+    osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = "square"; g.gain.value = 0.25; osc.connect(g); g.connect(ctx.destination); osc.start();
+    let haut = false;
+    const bip = () => { osc.frequency.setValueAtTime(haut ? 960 : 640, ctx.currentTime); haut = !haut; };
+    bip(); sirene = setInterval(bip, 450);
+  }
+  function arreterSirene() { clearInterval(sirene); if (osc) { try { osc.stop(); } catch {} osc = null; } }
+  const $son = document.getElementById("son");
+  let alarme = false;
+  new EventSource("/events").onmessage = (e) => {
+    const d = JSON.parse(e.data);
+    montrer(d.couleur);
+    alarme = d.alarme;
+    document.body.classList.toggle("alarme", alarme);
+    if (!alarme) arreterSirene();
+    majSon();
+  };
+</script>
+</body>
+</html>
