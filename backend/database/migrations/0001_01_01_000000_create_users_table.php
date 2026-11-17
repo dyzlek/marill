@@ -12,11 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            // Entité UTILISATEUR du MLD (docs/correspondance-mld.md) : `pseudo` remplace le `name`
+            // du starter kit, `password` et created_at / updated_at gardent leurs noms Laravel.
             $table->id();
-            $table->string('name');
+            $table->string('pseudo', 50)->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // Valeurs écrites en dur : une migration décrit la base à un instant donné,
+            // elle ne doit pas changer si l'enum PHP App\Enums\Role évolue plus tard.
+            $table->enum('role', ['membre', 'admin'])->default('membre');
+            $table->timestamp('suspendu_le')->nullable();
+            $table->timestamp('derniere_connexion_le')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

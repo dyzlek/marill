@@ -7,16 +7,17 @@
 
         <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
             @csrf
-            <!-- Name -->
+            <!-- Pseudo (MLD : UTILISATEUR.pseudo, 50 caractères, unique) -->
             <flux:input
-                name="name"
-                :label="__('Name')"
-                :value="old('name')"
+                name="pseudo"
+                :label="__('Pseudo')"
+                :value="old('pseudo')"
                 type="text"
                 required
                 autofocus
-                autocomplete="name"
-                :placeholder="__('Full name')"
+                maxlength="50"
+                autocomplete="nickname"
+                :placeholder="__('Pseudo')"
             />
 
             <!-- Email Address -->

@@ -29,6 +29,7 @@ Vérifier :
 
 ```bash
 php artisan babel:verifier   # doit finir par « Tout est prêt »
+php artisan db:seed          # données de démo (comptes admin@example.com et test@example.com, mot de passe « password »)
 php artisan test
 composer run dev             # http://localhost:8000
 ```

@@ -47,9 +47,43 @@ Conséquences à connaître :
 - Une table du MLD qui a `cree_le` sans `maj_le` (`ADRESSE`, `MARQUE_PAGE`, `VOTE`, `LIEN_COURT`, `SIGNALEMENT`, `TEXTE_BANNI`, `RECHERCHE`) n'a pas de `updated_at` : son modèle désactive cette colonne (`const UPDATED_AT = null;`).
 - `COLLECTION_PAGE`, `ACTIVITE_JOUR` et `REGLAGE` n'ont aucune date : `#[Table(timestamps: false)]` (combiné au nom quand il faut).
 
-## Restent à régler pendant les migrations (milestone 2)
+## Décisions des migrations (issue #15, 17 novembre 2026)
 
-Ce ne sont pas des questions de nom, mais le MLD et Eloquent ne se rencontrent pas tout seuls :
+Le MLD et Eloquent ne se rencontrent pas tout seuls sur trois points. Le groupe a choisi :
 
-- **Clés primaires qui ne sont pas un `id`** : `VOTE` (`user_id`, `adresse_id`), `COLLECTION_PAGE` (`collection_id`, `position`), `ACTIVITE_JOUR` (`jour`), `REGLAGE` (`cle`). Eloquent ne gère pas bien les clés composées.
-- **`name` du starter kit et `pseudo` du MLD** dans `users`.
+### 1. `pseudo` remplace `name` dans `users`
+
+La colonne s'appelle `pseudo` (50 caractères, unique), comme dans le MLD : une seule notion, un seul nom. Le starter kit a été adapté : la migration `users`, le modèle `User` (`#[Fillable]`, `initials()`), `CreateNewUser`, `ProfileValidationRules::pseudoRules()` (`max:50`, `unique`), les pages d'inscription et de profil, les menus et leurs tests. On a modifié la migration d'origine plutôt qu'en ajouter une : rien n'est en production, et `migrate:fresh` reconstruit la base.
+
+`users` garde aussi `email_verified_at`, `remember_token`, `updated_at` et les colonnes de double authentification du starter kit : Fortify en a besoin. `role` (`membre` par défaut), `suspendu_le` et `derniere_connexion_le` viennent du MLD. `role` n'est pas dans `#[Fillable]` : un formulaire ne doit jamais pouvoir créer un admin. `User::isAdmin()` est la seule définition de l'admin.
+
+### 2. Clés composées : la vraie clé du MLD, et des relations « plusieurs à plusieurs »
+
+- `votes` a la clé primaire (`user_id`, `adresse_id`) et `collection_pages` la clé primaire (`collection_id`, `position`), comme au MLD. C'est la base qui interdit un second vote, ou deux pages à la même position.
+- Eloquent ne sait pas retrouver **un** modèle par une clé composée (`find()`, `save()` d'une ligne seule). Ces deux tables sont donc des **tables pivots**, qu'on écrit par les relations `belongsToMany` : `User::pagesVotees()` (`attach($adresse->id, ['valeur' => 1])`) et `Collection::pages()` (`attach($adresse->id, ['position' => 3])`, triées par `orderByPivot('position')`). `Vote` et `CollectionPage` sont des classes `Pivot` (`->using(...)`), pas des modèles autonomes. On lit les votes d'une page par `Adresse::votes()` pour les additionner.
+- `votes.created_at` est rempli par la base (`useCurrent()`), car une table pivot n'est pas datée comme un modèle. Il n'est pas dans `withPivot` : sinon Laravel daterait la ligne avec les colonnes de `User`, dont un `updated_at` que `votes` n'a pas.
+- `activites_jour` (`jour`) et `reglages` (`cle`) ont une clé simple qui n'est pas un entier : `#[Table(key: …, keyType: 'string', incrementing: false)]`, ce qu'Eloquent gère très bien.
+
+### 3. Les règles tenues deux fois : par la base, et par le modèle
+
+| Règle | Dans la base | Dans le modèle |
+|---|---|---|
+| 5 : une seule bibliothèque `est_locale` | index unique **partiel** `bibliotheques_une_seule_locale` (`WHERE est_locale`), écrit en SQL : le schema builder ne sait pas faire | `Bibliotheque` (`saving`) |
+| 11 : un lien court a exactement une cible ; un visiteur expire ; un passage va avec une adresse | contraintes `CHECK` nommées `lien_court_une_seule_cible`, `lien_court_visiteur_expire`, `lien_court_passage_vers_une_adresse` | `LienCourt` (`saving`) |
+| 13 : un signalement vise exactement un contenu | `CHECK` `signalement_une_seule_cible` | `Signalement` (`saving`) |
+| 10 : un vote vaut +1 ou −1 | `CHECK` `vote_plus_ou_moins_un` | (validation de la requête, issue #27) |
+
+- **Pourquoi deux fois.** La base est la dernière barrière : elle refuse une ligne fausse même si elle vient de tinker, de Filament ou d'une requête SQL. Le modèle vérifie avant d'écrire pour donner un message en français qui nomme la règle (`App\Exceptions\RegleNonRespectee`), au lieu d'une « Integrity constraint violation ». C'est une erreur de programmation (un contrôleur doit valider avant) : elle reste un 500 journalisé, pas un 422.
+- **Comment, sans `->check()`.** Laravel 13 n'a pas de méthode pour une contrainte `CHECK`. On l'écrit dans la définition d'une colonne avec `rawColumn()`, comme Laravel le fait lui-même pour `enum()` sous SQLite. SQLite accepte qu'une telle contrainte lise les autres colonnes de la ligne. La clé étrangère de cette colonne se déclare alors à part (`$table->foreign(...)`).
+- **Portabilité.** Le SQL écrit est accepté par SQLite et PostgreSQL. MySQL n'a pas d'index partiel : à revoir si on change de base.
+
+### Suppressions (règles 13, 18, 19)
+
+- Supprimer un compte (`cascadeOnDelete` sur `user_id`) efface ses marque-pages, collections (et leurs pages, leurs liens courts), annotations, votes, recherches et liens courts. Ses signalements restent, sans auteur (`auteur_id` en `nullOnDelete`).
+- Supprimer un contenu signalé supprime ses signalements (`cascadeOnDelete` sur les trois cibles).
+- Supprimer un texte banni retire sa marque des adresses (`texte_banni_id` en `nullOnDelete`) sans les supprimer.
+- Une adresse ou une bibliothèque encore citée ne se supprime pas (`restrictOnDelete`) : une adresse est partagée par tout ce qui la désigne.
+
+### Enregistrer une adresse
+
+`Adresse::enregistrer($bibliotheque, $adresse)` passe l'adresse par F5 (`Validateur`), la découpe en colonnes et calcule `empreinte` (SHA-256 de l'adresse) et `empreinte_livre` (SHA-256 de l'adresse sans `:page`). Elle retrouve la ligne si elle existe déjà (règle 2). `$adresse->ecriture()` redonne l'adresse écrite.

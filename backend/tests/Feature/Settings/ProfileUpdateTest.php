@@ -25,7 +25,7 @@ class ProfileUpdateTest extends TestCase
         $this->actingAs($user);
 
         $response = Livewire::test('pages::settings.profile')
-            ->set('name', 'Test User')
+            ->set('pseudo', 'testeur')
             ->set('email', 'test@example.com')
             ->call('updateProfileInformation');
 
@@ -33,7 +33,7 @@ class ProfileUpdateTest extends TestCase
 
         $user->refresh();
 
-        $this->assertEquals('Test User', $user->name);
+        $this->assertEquals('testeur', $user->pseudo);
         $this->assertEquals('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
     }
@@ -45,7 +45,7 @@ class ProfileUpdateTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test('pages::settings.profile')
-            ->set('name', 'Test User')
+            ->set('pseudo', 'testeur')
             ->set('email', 'Test@Example.com')
             ->call('updateProfileInformation')
             ->assertHasNoErrors();
@@ -69,7 +69,7 @@ class ProfileUpdateTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('pages::settings.profile')
-            ->set('name', 'Test User')
+            ->set('pseudo', 'testeur')
             ->set('email', 'Taken@Example.com')
             ->call('updateProfileInformation')
             ->assertHasErrors(['email']);
@@ -82,7 +82,7 @@ class ProfileUpdateTest extends TestCase
         $this->actingAs($user);
 
         $response = Livewire::test('pages::settings.profile')
-            ->set('name', 'Test User')
+            ->set('pseudo', 'testeur')
             ->set('email', $user->email)
             ->call('updateProfileInformation');
 

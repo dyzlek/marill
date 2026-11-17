@@ -25,7 +25,7 @@ Le suivi détaillé est sur le [tableau du projet](https://github.com/users/dyzl
 - [x] Cahier des charges final (15 novembre 2026)
 - [x] Projet Laravel créé, moteur installé et vérifié
 - [x] API REST : lire une page, chercher, identité, page au hasard (Sanctum installé)
-- [ ] Modèle de données : les 14 tables
+- [x] Modèle de données : les 14 tables
 - [x] Fonctions du serveur : normaliser, valider, page au hasard
 - [x] Intégration continue : Pint, PHPStan et tests Pest à chaque push
 - [ ] Back-office Filament
@@ -47,6 +47,7 @@ php artisan key:generate
 php artisan migrate
 php artisan babel:cle
 php artisan babel:verifier
+php artisan db:seed   # données de démo (après la clé : le seeder publie son empreinte)
 composer run dev
 ```
 
