@@ -100,7 +100,11 @@ Le tuto (fait le 6 novembre, code dans `cineclub/` et `tuto-laravel-0-4/`, hors 
 
 **Questions laissées par le tuto pour Babel** (à faire réfléchir le groupe, pas à trancher à sa place) : quelles routes publiques, lesquelles avec jeton, qui a le droit de faire quoi ? Que se passe-t-il pour le réseau si on renomme un champ d'une Resource ? Où ranger le moteur fourni pour que les contrôleurs s'en servent sans le fabriquer ? Combien de requêtes SQL pour la page la plus chargée, et comment le savoir ?
 
-**Point à trancher** : le MLD du cahier des charges nomme ses tables au singulier et en majuscules (`UTILISATEUR`, `MARQUE_PAGE`…), alors que les conventions Laravel veulent des tables au pluriel (`utilisateurs`, `marque_pages`…). Suivre les conventions évite de tout préciser à la main dans chaque relation : décision à prendre par le groupe.
+**Noms des tables : décidé le 17 novembre (issue #1)**, détail dans [`docs/correspondance-mld.md`](docs/correspondance-mld.md). Le MLD reste le modèle logique ; les noms physiques suivent Laravel :
+- tables au pluriel, en minuscules, en français correct (`adresses`, `marque_pages`…) ; `#[Table('…')]` sur les trois modèles que Laravel met mal au pluriel : `liens_courts`, `textes_bannis`, `activites_jour` ;
+- l'entité `UTILISATEUR` est la table `users` du starter kit (modèle `User`), et les clés vers elle s'appellent `user_id` ;
+- `created_at`, `updated_at`, `password` à la place de `cree_le`, `maj_le`, `mot_de_passe_hache` ; les autres colonnes gardent leur nom du MLD.
+- À savoir pour l'oral : Laravel devine une clé étrangère depuis le nom du **modèle** ou de la méthode de relation, pas depuis le nom de la table. Le choix des noms de tables ne change donc pas les relations.
 
 ## Authentification et front Angular attendus (d'après le tuto « OAuth2 : la connexion GitHub du CinéClub »)
 
