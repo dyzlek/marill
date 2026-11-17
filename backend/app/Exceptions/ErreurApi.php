@@ -31,6 +31,10 @@ final class ErreurApi extends Exception
         'ERR_INVALID_PAGE_LENGTH' => 422,
         'ERR_OUT_OF_BOUNDS' => 404,
         'ERR_TOO_MANY_REQUESTS' => 429,
+        // Comptes (issue #16). Codes provisoires : le cahier des charges renvoie leurs noms au contrat
+        // d'API commun (« inscriptions fermées, accès refusé… »).
+        'ERR_INVALID_CREDENTIALS' => 401,
+        'ERR_REGISTRATION_CLOSED' => 403,
     ];
 
     /** @param  list<array{code: string, champ: ?string, message: string}>  $erreurs */

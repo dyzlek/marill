@@ -1,0 +1,25 @@
+meta {
+  name: Révoquer le jeton
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/tokens/courant
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("204 : le jeton ne marche plus", function () {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

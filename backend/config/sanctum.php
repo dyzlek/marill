@@ -11,7 +11,7 @@ $domainesStateful = env('SANCTUM_STATEFUL_DOMAINS');
 if (! is_string($domainesStateful)) {
     $domainesStateful = sprintf(
         '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        'localhost,localhost:3000,localhost:4200,127.0.0.1,127.0.0.1:8000,::1', // 4200 : ng serve
         Sanctum::currentApplicationUrlWithPort(),
     );
 }

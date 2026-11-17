@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Adresse du front Angular : CORS (config/cors.php) et futures redirections vers le front.
+    // Toujours lue ici, jamais dans la requête (sinon : redirection ouverte).
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:4200'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

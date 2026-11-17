@@ -16,7 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Sanctum en mode SPA : une requête /api qui vient du front Angular (domaine listé dans
+        // SANCTUM_STATEFUL_DOMAINS) reçoit la session et la protection CSRF, comme une page web.
+        // Les autres clients (Bruno, autres bibliothèques) restent sans session : jeton Bearer.
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $versJson = fn (Request $request) => $request->is('api/*') || $request->expectsJson();

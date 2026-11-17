@@ -3,13 +3,15 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
+use App\Actions\Fortify\VerifierIdentifiants;
+use App\Models\User;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
 use Livewire\Livewire;
 
@@ -49,8 +51,25 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureActions(): void
     {
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // M1 : connexion par email et mot de passe, comme Fortify, plus une règle à nous : un compte
+        // suspendu (A2) ne se connecte pas. null = identifiants faux, Fortify répond son message habituel.
+        // Le mot de passe étant juste, dire « suspendu » ne révèle rien à un inconnu.
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = app(VerifierIdentifiants::class)(
+                (string) $request->input(Fortify::username()),
+                (string) $request->input('password'),
+            );
+
+            if ($user?->suspendu_le !== null) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => 'Ce compte est suspendu.',
+                ]);
+            }
+
+            return $user;
+        });
     }
 
     /**
@@ -59,12 +78,9 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureViews(): void
     {
         Fortify::loginView(fn () => view('pages::auth.login'));
-        Fortify::verifyEmailView(fn () => view('pages::auth.verify-email'));
         Fortify::twoFactorChallengeView(fn () => view('pages::auth.two-factor-challenge'));
         Fortify::confirmPasswordView(fn () => view('pages::auth.confirm-password'));
         Fortify::registerView(fn () => view('pages::auth.register'));
-        Fortify::resetPasswordView(fn () => view('pages::auth.reset-password'));
-        Fortify::requestPasswordResetLinkView(fn () => view('pages::auth.forgot-password'));
     }
 
     /**

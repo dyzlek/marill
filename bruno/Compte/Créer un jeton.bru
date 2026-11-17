@@ -1,0 +1,43 @@
+meta {
+  name: Créer un jeton
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/tokens
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "password",
+    "nom": "bruno"
+  }
+}
+
+script:post-response {
+  // Range le jeton dans une variable de l'environnement, en mémoire seulement (pas écrit dans le fichier) :
+  // les requêtes suivantes l'envoient en en-tête Authorization: Bearer.
+  if (res.getStatus() === 201) {
+    bru.setEnvVar("jeton", res.getBody().data.jeton);
+  }
+}
+
+tests {
+  test("201 avec un jeton en clair, montré une seule fois", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().data.jeton).to.be.a("string");
+  });
+}
+
+docs {
+  Compte de démonstration du seeder (php artisan db:seed) : test@example.com, mot de passe « password ».
+  5 essais par minute au plus (429 au-delà).
+}

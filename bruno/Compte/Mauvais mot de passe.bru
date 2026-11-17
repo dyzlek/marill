@@ -1,0 +1,30 @@
+meta {
+  name: Mauvais mot de passe
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/tokens
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "faux",
+    "nom": "bruno"
+  }
+}
+
+tests {
+  test("401 avec un message vague au format commun", function () {
+    expect(res.getStatus()).to.equal(401);
+    expect(res.getBody().erreurs[0].code).to.equal("ERR_INVALID_CREDENTIALS");
+  });
+}
