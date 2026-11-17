@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\IdentiteController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\RechercheController;
 use Illuminate\Http\Request;
@@ -22,4 +23,8 @@ Route::name('api.')->group(function () {
     // encodé dans l'URL, dépasserait la limite de longueur de beaucoup de serveurs. Rien n'est enregistré : 200.
     // Le chemin exact sera fixé par le contrat d'API commun.
     Route::post('recherche', RechercheController::class)->name('recherche');
+
+    // Identité publique (B6) : identifiant, nom, description, empreinte de la clé (jamais la clé).
+    // Le chemin exact sera fixé par le contrat d'API commun.
+    Route::get('identite', IdentiteController::class)->name('identite');
 });

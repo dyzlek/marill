@@ -1,0 +1,28 @@
+meta {
+  name: Identité de la bibliothèque
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/identite
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("200 avec l'identité et une empreinte de 64 caractères", function () {
+    expect(res.getStatus()).to.equal(200);
+    const data = res.getBody().data;
+    expect(Object.keys(data)).to.eql(["identifiant", "nom", "description", "empreinte"]);
+    expect(data.empreinte).to.match(/^[0-9a-f]{64}$/);
+  });
+}
+
+docs {
+  B6 : identifiant, nom, description, empreinte de la clé. Route publique, sans jeton. La clé n'est jamais renvoyée.
+}
