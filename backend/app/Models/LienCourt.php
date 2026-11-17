@@ -31,6 +31,12 @@ class LienCourt extends Model
 
     const UPDATED_AT = null;
 
+    /**
+     * La base met visites à 0 par défaut, mais un modèle tout juste créé ne relit pas la ligne : sans ceci,
+     * la réponse de création dirait « visites: null ».
+     */
+    protected $attributes = ['visites' => 0];
+
     protected function casts(): array
     {
         return [
@@ -54,6 +60,43 @@ class LienCourt extends Model
                 throw new RegleNonRespectee('Règle 11 : un passage à surligner ne va qu\'avec une adresse.');
             }
         });
+    }
+
+    /**
+     * Les symboles d'un slug : minuscules et chiffres, sans ceux qu'on confond à l'oral ou sur un QR code
+     * imprimé (l et 1, o et 0). 32 symboles, 8 caractères : 32^8, plus de mille milliards de slugs.
+     */
+    public const SYMBOLES_SLUG = 'abcdefghijkmnpqrstuvwxyz23456789';
+
+    /**
+     * Un slug tiré au hasard. random_int : le générateur cryptographique du système, pour qu'on ne puisse
+     * pas deviner les liens des autres en essayant les slugs voisins. L'unicité est vérifiée par la base.
+     */
+    public static function nouveauSlug(): string
+    {
+        $slug = '';
+        for ($i = 0; $i < 8; $i++) {
+            $slug .= self::SYMBOLES_SLUG[random_int(0, strlen(self::SYMBOLES_SLUG) - 1)];
+        }
+
+        return $slug;
+    }
+
+    public function estExpire(): bool
+    {
+        return $this->expire_le !== null && $this->expire_le->isPast();
+    }
+
+    /**
+     * On ne montre plus le lien au public (règles 14 et 18) : il est masqué, ou sa cible l'est. Une page
+     * n'est jamais masquée, mais un lien vers une page qui contient un texte banni appliqué ne la montre
+     * plus. Les relations adresse et collection doivent être chargées (with / load) : pas de requête cachée.
+     */
+    public function estMasque(): bool
+    {
+        return $this->masque_le !== null
+            || $this->adresse?->texte_banni_id !== null
+            || ($this->collection !== null && ($this->collection->masque_le !== null || ! $this->collection->est_publique));
     }
 
     /** @return BelongsTo<User, $this> */

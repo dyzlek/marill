@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\HasardController;
 use App\Http\Controllers\Api\IdentiteController;
 use App\Http\Controllers\Api\JetonController;
+use App\Http\Controllers\Api\LienCourtController;
 use App\Http\Controllers\Api\MarquePageController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\RechercheController;
@@ -29,6 +30,11 @@ Route::name('api.')->group(function () {
     Route::apiResource('marque-pages', MarquePageController::class)
         ->only(['index', 'store', 'show', 'destroy'])
         ->parameters(['marque-pages' => 'marquePage']);
+
+    // Liens courts (V11, V12), publics : un visiteur en crée et en ouvre. Création limitée à 10 par minute et
+    // par IP (provisoire : la vraie limite sera celle de A10, issue #26). Ouvrir n'est pas limité ici.
+    Route::post('liens-courts', [LienCourtController::class, 'store'])->middleware('throttle:10,1')->name('liens-courts.store');
+    Route::get('liens-courts/{slug}', [LienCourtController::class, 'show'])->name('liens-courts.show');
 
     // Lecture publique (V1, B1). Une adresse ne contient pas de « / » : le paramètre par défaut ([^/]+) suffit.
     // Le chemin exact sera fixé par le contrat d'API commun.

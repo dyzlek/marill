@@ -38,6 +38,11 @@ final class ErreurApi extends Exception
         // Marque-pages (issue #18, règle 7). 409 Conflict : la requête est bien formée, mais elle contredit
         // l'état actuel (la page est déjà gardée). Code provisoire, comme les deux précédents.
         'ERR_ALREADY_BOOKMARKED' => 409,
+        // Liens courts (issue #21, V12). Le CDC annonce ces trois cas sans les nommer (« lien court inconnu,
+        // expiré ou masqué »). 410 Gone : le lien a existé mais ne mène plus nulle part, à la différence de 404.
+        'ERR_LINK_NOT_FOUND' => 404,
+        'ERR_LINK_EXPIRED' => 410,
+        'ERR_LINK_HIDDEN' => 410,
     ];
 
     /** @param  list<array{code: string, champ: ?string, message: string}>  $erreurs */

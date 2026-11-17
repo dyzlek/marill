@@ -18,4 +18,8 @@ return [
     'nom' => env('BIBLIOTHEQUE_NOM', env('APP_NAME', 'Bibliothèque de Babel')),
 
     'description' => env('BIBLIOTHEQUE_DESCRIPTION'),
+
+    // Règle 11 : un lien court créé sans compte expire obligatoirement. Le CDC ne fixe pas la durée :
+    // choix du groupe (issue #21), 30 jours.
+    'jours_avant_expiration_lien_visiteur' => (int) env('LIEN_VISITEUR_JOURS', 30),
 ];

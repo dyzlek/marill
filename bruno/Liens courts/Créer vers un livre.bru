@@ -1,0 +1,29 @@
+meta {
+  name: Créer vers un livre
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/liens-courts
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "adresse": "0-w1-s1-v1"
+  }
+}
+
+tests {
+  test("201 : un livre s'ouvre sur sa page 1", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().data.type).to.equal("livre");
+    expect(res.getBody().data.ouvrir).to.equal("0-w1-s1-v1:1");
+  });
+}

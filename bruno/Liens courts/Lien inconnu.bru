@@ -1,0 +1,22 @@
+meta {
+  name: Lien inconnu
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/liens-courts/inconnu0
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("404 ERR_LINK_NOT_FOUND", function () {
+    expect(res.getStatus()).to.equal(404);
+    expect(res.getBody().erreurs[0].code).to.equal("ERR_LINK_NOT_FOUND");
+  });
+}
