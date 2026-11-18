@@ -23,7 +23,8 @@ final class VerifierIdentifiants
         // Hash::check compare au hachage stocké ; on ne lit jamais le mot de passe en clair.
         // Utilisateur inconnu ou mauvais mot de passe : même réponse (null), pour ne pas révéler
         // quels emails ont un compte.
-        if ($user === null || ! Hash::check($motDePasse, $user->password)) {
+        // password nul : compte venu par GitHub, sans mot de passe (issue #4).
+        if ($user === null || $user->password === null || ! Hash::check($motDePasse, $user->password)) {
             return null;
         }
 

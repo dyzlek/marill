@@ -25,7 +25,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $pseudo
  * @property string $email
  * @property Carbon|null $email_verified_at
- * @property string $password
+ * @property string|null $github_id
+ * @property string|null $password
  * @property Role $role
  * @property Carbon|null $suspendu_le
  * @property Carbon|null $derniere_connexion_le
@@ -36,9 +37,10 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-// role et suspendu_le hors de #[Fillable] : un formulaire ne doit jamais pouvoir faire d'un membre un admin.
+// role, suspendu_le et github_id hors de #[Fillable] : un formulaire ne doit jamais pouvoir faire d'un membre
+// un admin, ni le relier au compte GitHub de quelqu'un d'autre. github_id s'affecte à la main (forceFill).
 #[Fillable(['pseudo', 'email', 'password'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Hidden(['password', 'github_id', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */

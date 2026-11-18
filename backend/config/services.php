@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    // Connexion avec GitHub (issue #4, Socialite). Le secret reste dans le .env, jamais commité.
+    // L'adresse de retour est fixée ici, jamais lue dans la requête.
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('APP_URL').'/auth/github/callback',
+    ],
+
 ];
