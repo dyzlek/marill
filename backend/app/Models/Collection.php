@@ -21,6 +21,14 @@ class Collection extends Model
     /** @use HasFactory<CollectionFactory> */
     use HasFactory, Signalable; // signalements(), nonSignalesPar(), estSignalePar() : V17, V18
 
+    /**
+     * Valeur par défaut côté modèle aussi : sans elle, une collection tout juste créée renverrait
+     * est_publique = null (la base pose false, mais Eloquent ne relit pas la ligne après l'insertion).
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = ['est_publique' => false];
+
     /** masque_le hors de #[Fillable] : seul un administrateur le pose (règle 14). */
     protected function casts(): array
     {

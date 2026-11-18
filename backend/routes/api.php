@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CollectionController;
 use App\Http\Controllers\Api\HasardController;
 use App\Http\Controllers\Api\IdentiteController;
 use App\Http\Controllers\Api\JetonController;
@@ -35,6 +36,12 @@ Route::name('api.')->group(function () {
     Route::apiResource('marque-pages', MarquePageController::class)
         ->only(['index', 'store', 'show', 'destroy'])
         ->parameters(['marque-pages' => 'marquePage']);
+
+    // Collections du membre connecté (M4, M5, M13, règle 8). auth:sanctum et la Policy sur le contrôleur.
+    // Les pages : POST ajoute à la fin, PUT remplace toute la liste dans le nouvel ordre.
+    Route::apiResource('collections', CollectionController::class);
+    Route::post('collections/{collection}/pages', [CollectionController::class, 'ajouterPage'])->name('collections.pages.store');
+    Route::put('collections/{collection}/pages', [CollectionController::class, 'rangerPages'])->name('collections.pages.update');
 
     // Liens courts (V11, V12), publics : un visiteur en crée et en ouvre. Création limitée à 10 par minute et
     // par IP (provisoire : la vraie limite sera celle de A10, issue #26). Ouvrir n'est pas limité ici.

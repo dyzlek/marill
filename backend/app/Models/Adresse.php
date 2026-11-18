@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $empreinte
  * @property string $empreinte_livre
  * @property int|null $texte_banni_id
+ * @property-read CollectionPage $rangement La ligne de collection_pages, présente seulement quand l'adresse est chargée par Collection::pages().
  */
 #[Fillable(['bibliotheque_id', 'hexagone', 'mur', 'etagere', 'volume', 'page', 'empreinte', 'empreinte_livre'])]
 class Adresse extends Model

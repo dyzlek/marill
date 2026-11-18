@@ -1,0 +1,25 @@
+meta {
+  name: Supprimer
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/api/collections/{{collectionId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("204", function () {
+    expect(res.getStatus()).to.equal(204);
+  });
+}
