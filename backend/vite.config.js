@@ -1,6 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import laravel from 'laravel-vite-plugin';
-import { bunny } from 'laravel-vite-plugin/fonts';
+import { local } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
@@ -13,8 +13,15 @@ export default defineConfig({
             ],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                // Fichiers rangés dans le dépôt (licence OFL) : le build ne
+                // dépend plus d'un service extérieur et le navigateur ne
+                // contacte aucun tiers pour afficher la police.
+                local('Instrument Sans', {
+                    variants: [400, 500, 600].map((weight) => ({
+                        src: `resources/fonts/instrument-sans/instrument-sans-latin-${weight}-normal.woff2`,
+                        weight,
+                    })),
+                    optimizedFallbacks: false,
                 }),
             ],
         }),
