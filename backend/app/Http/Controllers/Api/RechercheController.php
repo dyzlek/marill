@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Babel\Normaliseur;
 use App\Babel\ResultatRecherche;
+use App\Enums\PorteeRecherche;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ChercherTexteRequest;
 use App\Http\Resources\RechercheResource;
+use App\Models\ActiviteJour;
+use App\Models\User;
 use Babel\Moteur\Moteur;
 
 class RechercheController extends Controller
@@ -27,6 +30,14 @@ class RechercheController extends Controller
         // Vide ou trop long après conversion : le moteur lève ERR_EMPTY_QUERY ou ERR_TEXT_TOO_LONG,
         // traduits en 422 par bootstrap/app.php.
         $adresse = $moteur->chercher($texte, $mode);
+
+        // Règle 12 : on ne garde que les recherches des membres (M8), le texte normalisé, sans l'adresse
+        // (la même recherche la redonne). Un visiteur, ou une autre bibliothèque, ne laisse qu'un compteur.
+        // La route est publique : auth('sanctum') regarde s'il y a quand même un membre (session ou jeton).
+        /** @var User|null $membre */
+        $membre = auth('sanctum')->user();
+        $membre?->recherches()->create(['texte' => $texte, 'mode' => $mode, 'portee' => PorteeRecherche::Locale]);
+        ActiviteJour::compter('recherches');
 
         return new RechercheResource(new ResultatRecherche($texte, $mode, $adresse));
     }

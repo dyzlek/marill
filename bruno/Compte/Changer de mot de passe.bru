@@ -1,0 +1,33 @@
+meta {
+  name: Changer de mot de passe
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{baseUrl}}/api/user/password
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "current_password": "password",
+    "password": "password",
+    "password_confirmation": "password"
+  }
+}
+
+tests {
+  test("204, les jetons sont coupés : en recréer un", function () {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

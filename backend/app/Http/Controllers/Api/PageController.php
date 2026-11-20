@@ -7,6 +7,7 @@ use App\Babel\Validateur;
 use App\Exceptions\ErreurApi;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PageResource;
+use App\Models\ActiviteJour;
 use Babel\Moteur\Moteur;
 
 class PageController extends Controller
@@ -26,6 +27,11 @@ class PageController extends Controller
             throw ErreurApi::depuisValidation($resultat); // 422 ou 404 au format commun
         }
 
-        return new PageResource(new Page($adresse, $moteur->lire($adresse)));
+        $page = new Page($adresse, $moteur->lire($adresse));
+
+        // A11 · règle 21 : un compteur par jour, jamais une ligne par lecture (ni qui, ni quoi).
+        ActiviteJour::compter('pages_lues');
+
+        return new PageResource($page);
     }
 }

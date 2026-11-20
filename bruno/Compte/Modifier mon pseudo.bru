@@ -1,0 +1,31 @@
+meta {
+  name: Modifier mon pseudo
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{baseUrl}}/api/user
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "pseudo": "testeur"
+  }
+}
+
+tests {
+  test("200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -52,10 +52,30 @@ class Bibliotheque extends Model
         });
     }
 
-    /** La ligne de notre bibliothèque. */
+    /**
+     * La ligne de notre bibliothèque. Créée au premier besoin à partir de config/bibliotheque.php
+     * (valeurs de départ : identifiant remis par la plateforme, nom, description) ; ensuite, c'est
+     * l'administrateur qui change le nom et la description dans le back-office (A8), et la base fait foi.
+     */
     public static function locale(): self
     {
-        return static::query()->where('est_locale', true)->firstOrFail();
+        $locale = static::query()->where('est_locale', true)->first();
+        if ($locale !== null) {
+            return $locale;
+        }
+
+        $locale = new self([
+            'identifiant' => config('bibliotheque.identifiant'),
+            'nom' => config('bibliotheque.nom'),
+            'description' => config('bibliotheque.description'),
+            'url_actuelle' => config('app.url'),
+            'etat' => EtatBibliotheque::EnLigne,
+            'echecs_consecutifs' => 0,
+        ]);
+        $locale->est_locale = true; // hors #[Fillable], affecté à la main
+        $locale->save();
+
+        return $locale;
     }
 
     /** @return HasMany<Adresse, $this> */

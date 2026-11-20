@@ -4,6 +4,7 @@
  * Issue #22 (V17, V18, règles 13 à 15) : signaler un contenu publié, ne plus voir ce qu'on a signalé.
  */
 
+use App\Models\Adresse;
 use App\Models\Annotation;
 use App\Models\Bibliotheque;
 use App\Models\Collection;
@@ -100,14 +101,16 @@ describe('V17 : signaler un contenu publié', function () {
         expect(Signalement::query()->count())->toBe(2);
     });
 
-    test('limite provisoire : 10 signalements par minute, compteur séparé des liens courts', function () {
-        foreach (range(1, 10) as $i) {
+    test('A10 : liens courts et signalements partagent le quota des publications, lire ne compte pas', function () {
+        $lien = LienCourt::factory()->for(Adresse::factory()->for(Bibliotheque::locale()))->create();
+        foreach (range(1, 15) as $i) {
+            $this->getJson("/api/liens-courts/{$lien->slug}")->assertOk(); // lire : l'autre compteur
+        }
+
+        foreach (range(1, 5) as $i) {
             $this->postJson('/api/liens-courts', ['adresse' => "0-w1-s1-v1:{$i}"])->assertCreated();
         }
-        $lien = LienCourt::query()->firstOrFail();
-
-        // Les 10 liens créés n'ont pas entamé le compteur des signalements.
-        foreach (range(1, 10) as $i) {
+        foreach (range(1, 5) as $i) {
             $this->postJson('/api/signalements', ['lien_court' => $lien->slug, 'motif' => "n° {$i}"])->assertCreated();
         }
         $this->postJson('/api/signalements', ['lien_court' => $lien->slug, 'motif' => 'de trop'])

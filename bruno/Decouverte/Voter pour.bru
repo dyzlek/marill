@@ -1,0 +1,31 @@
+meta {
+  name: Voter pour
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/pages/0-w1-s1-v1:1/vote
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "valeur": 1
+  }
+}
+
+tests {
+  test("200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

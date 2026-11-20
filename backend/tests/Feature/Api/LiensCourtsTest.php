@@ -109,7 +109,7 @@ describe('V11 : créer un lien court', function () {
             ->assertJsonPath('data.page.locale', false);
     });
 
-    test('limite provisoire : 10 créations par minute, puis 429', function () {
+    test('A10 : 10 créations par minute par défaut, puis 429', function () {
         foreach (range(1, 10) as $i) {
             $this->postJson('/api/liens-courts', ['adresse' => "0-w1-s1-v1:{$i}"])->assertCreated();
         }

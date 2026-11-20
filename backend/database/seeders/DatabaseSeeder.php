@@ -47,7 +47,10 @@ class DatabaseSeeder extends Seeder
         $pairs = Bibliotheque::factory()->count(3)->create();
         $pairs->first()?->update(['etat' => EtatBibliotheque::HorsLigne, 'echecs_consecutifs' => 3]);
 
-        Reglage::query()->create(['cle' => 'inscriptions_ouvertes', 'valeur' => '1']);
+        // Règle 22 : inscriptions ouvertes et quotas de l'API publique (A8, A10), modifiables dans le back-office.
+        foreach (Reglage::PAR_DEFAUT as $cle => $valeur) {
+            Reglage::ecrire($cle, $valeur);
+        }
 
         $admin = User::factory()->admin()->create(['pseudo' => 'admin', 'email' => 'admin@example.com']);
         $testeur = User::factory()->create(['pseudo' => 'testeur', 'email' => 'test@example.com']);

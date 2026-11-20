@@ -10,7 +10,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** RECHERCHE (règle 12, M8) : l'historique d'un membre. L'adresse trouvée n'est pas stockée. */
+/**
+ * RECHERCHE (règle 12, M8) : l'historique d'un membre. L'adresse trouvée n'est pas stockée.
+ *
+ * @property int $id
+ * @property string $texte
+ * @property ModeRecherche $mode
+ * @property PorteeRecherche $portee
+ */
 #[Fillable(['texte', 'mode', 'portee'])]
 class Recherche extends Model
 {

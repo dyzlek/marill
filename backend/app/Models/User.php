@@ -4,6 +4,9 @@ namespace App\Models;
 
 use App\Enums\Role;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
@@ -41,10 +45,18 @@ use Laravel\Sanctum\HasApiTokens;
 // un admin, ni le relier au compte GitHub de quelqu'un d'autre. github_id s'affecte à la main (forceFill).
 #[Fillable(['pseudo', 'email', 'password'])]
 #[Hidden(['password', 'github_id', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser
+class User extends Authenticatable implements FilamentUser, HasName, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * Valeur par défaut côté modèle aussi (la base pose « membre ») : sans elle, un compte tout juste créé
+     * aurait role = null tant qu'on ne relit pas la ligne.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = ['role' => 'membre'];
 
     /**
      * Get the attributes that should be cast.
@@ -68,6 +80,50 @@ class User extends Authenticatable implements PasskeyUser
     public function isAdmin(): bool
     {
         return $this->role === Role::Admin;
+    }
+
+    /**
+     * Filament (back-office /admin) : réservé à l'admin, avec la même définition que l'API. Un admin
+     * suspendu n'entre pas non plus. Sans cette méthode, Filament refuse tout le monde en production.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isAdmin() && ! $this->estSuspendu();
+    }
+
+    /** Filament cherche une colonne « name » ; chez nous c'est le pseudo (MLD). */
+    public function getFilamentName(): string
+    {
+        return $this->pseudo;
+    }
+
+    public function estSuspendu(): bool
+    {
+        return $this->suspendu_le !== null;
+    }
+
+    /**
+     * A2 : suspendre. Dater suffit pour refuser les prochaines connexions (VerifierIdentifiants, GitHub) ;
+     * on coupe aussi ce qui est déjà ouvert : ses jetons et ses sessions en base (SESSION_DRIVER=database).
+     * Sinon un membre déjà connecté continuerait comme si de rien n'était.
+     */
+    public function suspendre(): void
+    {
+        $this->forceFill(['suspendu_le' => now()])->save();
+        $this->tokens()->delete();
+        DB::table('sessions')->where('user_id', $this->id)->delete();
+    }
+
+    /** A2 : rétablir. Le membre se reconnecte normalement. */
+    public function retablir(): void
+    {
+        $this->forceFill(['suspendu_le' => null])->save();
+    }
+
+    /** A3 : promouvoir administrateur. role n'est pas dans #[Fillable] : on l'affecte à la main. */
+    public function promouvoir(): void
+    {
+        $this->forceFill(['role' => Role::Admin])->save();
     }
 
     /**

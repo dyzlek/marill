@@ -1,15 +1,23 @@
 <?php
 
+use App\Http\Controllers\Api\AnnotationController;
+use App\Http\Controllers\Api\AnnotationsDePageController;
 use App\Http\Controllers\Api\CollectionController;
+use App\Http\Controllers\Api\CollectionPubliqueController;
+use App\Http\Controllers\Api\CompteController;
+use App\Http\Controllers\Api\ExportCompteController;
 use App\Http\Controllers\Api\HasardController;
+use App\Http\Controllers\Api\HistoriqueRechercheController;
 use App\Http\Controllers\Api\IdentiteController;
 use App\Http\Controllers\Api\JetonController;
 use App\Http\Controllers\Api\LienCourtController;
 use App\Http\Controllers\Api\MarquePageController;
 use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\PagesPopulairesController;
 use App\Http\Controllers\Api\RechercheController;
 use App\Http\Controllers\Api\SignalementController;
 use App\Http\Controllers\Api\UtilisateurCourantController;
+use App\Http\Controllers\Api\VoteController;
 use Illuminate\Support\Facades\Route;
 
 // Toutes les routes de l'API : préfixe d'URL /api (bootstrap/app.php), groupe de middlewares « api »,
@@ -22,9 +30,24 @@ Route::name('api.')->group(function () {
     // Le compte connecté (M1). auth:sanctum accepte la session du front Angular ET un jeton Bearer : 401 sinon.
     Route::get('user', UtilisateurCourantController::class)->middleware('auth:sanctum')->name('user');
 
-    // Limites de débit : throttle:essais,minutes,préfixe. Le préfixe donne à chaque route son propre compteur.
-    // Sans lui, Laravel compte par adresse IP (ou par membre) pour TOUTES les routes limitées : 5 essais de
-    // jeton ratés auraient aussi bloqué la création de liens courts depuis la même adresse.
+    // Mon compte (M9, M10, M11, M12). Toujours « mon » compte : aucun id dans l'URL. auth:sanctum sur les contrôleurs.
+    Route::patch('user', [CompteController::class, 'update'])->name('user.update');
+    Route::put('user/password', [CompteController::class, 'changerMotDePasse'])->name('user.password');
+    Route::delete('user', [CompteController::class, 'destroy'])->name('user.destroy');
+    Route::get('user/export', [ExportCompteController::class, 'export'])->name('user.export');
+    Route::post('user/import', [ExportCompteController::class, 'import'])->name('user.import');
+
+    // Mon historique de recherches (M8, règle 12).
+    Route::get('recherches', [HistoriqueRechercheController::class, 'index'])->name('recherches.index');
+    Route::delete('recherches/{recherche}', [HistoriqueRechercheController::class, 'destroy'])->whereNumber('recherche')->name('recherches.destroy');
+
+    // Voter pour ou contre une page (M7, règle 10). PUT pose mon vote (idempotent), DELETE le retire.
+    Route::put('pages/{adresse}/vote', [VoteController::class, 'update'])->name('pages.vote.update');
+    Route::delete('pages/{adresse}/vote', [VoteController::class, 'destroy'])->name('pages.vote.destroy');
+
+    // Limites de débit. throttle:essais,minutes,préfixe : le préfixe donne à la route son propre compteur (sans
+    // lui, toutes les routes limitées ainsi partagent un compteur par IP). throttle:nom : une limite nommée
+    // (AppServiceProvider), dont le quota se lit dans les réglages (A10).
 
     // Jetons des clients extérieurs (Bruno, scripts). throttle : 5 essais par minute et par adresse IP,
     // contre qui essaierait des mots de passe à la chaîne (429 au-delà, ERR_TOO_MANY_REQUESTS).
@@ -43,31 +66,46 @@ Route::name('api.')->group(function () {
     Route::post('collections/{collection}/pages', [CollectionController::class, 'ajouterPage'])->name('collections.pages.store');
     Route::put('collections/{collection}/pages', [CollectionController::class, 'rangerPages'])->name('collections.pages.update');
 
-    // Liens courts (V11, V12), publics : un visiteur en crée et en ouvre. Création limitée à 10 par minute et
-    // par IP (provisoire : la vraie limite sera celle de A10, issue #26). Ouvrir n'est pas limité ici.
-    Route::post('liens-courts', [LienCourtController::class, 'store'])->middleware('throttle:10,1,liens-courts')->name('liens-courts.store');
-    Route::get('liens-courts/{slug}', [LienCourtController::class, 'show'])->name('liens-courts.show');
+    // Annotations du membre connecté (M6, règle 9) ; seuls les membres annotent. Lecture publique d'une page
+    // (V14) sans compte : ses annotations publiques, non masquées.
+    Route::apiResource('annotations', AnnotationController::class);
+    Route::get('pages/{adresse}/annotations', AnnotationsDePageController::class)->middleware('throttle:api-publique')->name('pages.annotations');
 
-    // Signalements (V17, V18). Signaler est public, avec la même limite provisoire que les liens courts
-    // (le CDC range les deux actions sans compte sous A10). La liste de mes signalements est réservée au membre.
-    Route::post('signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1,signalements')->name('signalements.store');
+    // La liste de mes signalements (V18) est réservée au membre.
     Route::get('signalements', [SignalementController::class, 'index'])->middleware('auth:sanctum')->name('signalements.index');
 
-    // Lecture publique (V1, B1). Une adresse ne contient pas de « / » : le paramètre par défaut ([^/]+) suffit.
-    // Le chemin exact sera fixé par le contrat d'API commun.
-    Route::apiResource('pages', PageController::class)
-        ->only('show')
-        ->parameters(['pages' => 'adresse']);
+    // A10 : l'API publique, ouverte sans jeton, sous la limite de débit « api-publique » (AppServiceProvider) ;
+    // le quota se règle dans le back-office. Les deux actions sans compte qui écrivent en base (créer un lien
+    // court, signaler) ont en plus la limite « publications », plus serrée.
+    Route::middleware('throttle:api-publique')->group(function () {
+        // Liens courts (V11, V12), publics : un visiteur en crée et en ouvre.
+        Route::post('liens-courts', [LienCourtController::class, 'store'])->middleware('throttle:publications')->name('liens-courts.store');
+        Route::get('liens-courts/{slug}', [LienCourtController::class, 'show'])->name('liens-courts.show');
 
-    // Recherche publique (V4, V5, V6, B2). POST plutôt que GET : un texte de 3 200 caractères accentués,
-    // encodé dans l'URL, dépasserait la limite de longueur de beaucoup de serveurs. Rien n'est enregistré : 200.
-    // Le chemin exact sera fixé par le contrat d'API commun.
-    Route::post('recherche', RechercheController::class)->name('recherche');
+        // Signaler un contenu publié (V17), sans compte possible.
+        Route::post('signalements', [SignalementController::class, 'store'])->middleware('throttle:publications')->name('signalements.store');
 
-    // Identité publique (B6) : identifiant, nom, description, empreinte de la clé (jamais la clé).
-    // Le chemin exact sera fixé par le contrat d'API commun.
-    Route::get('identite', IdentiteController::class)->name('identite');
+        // V13 · B3 : collections publiques ; B4 : pages populaires. Lisibles par tous, autres bibliothèques comprises.
+        Route::get('collections-publiques', [CollectionPubliqueController::class, 'index'])->name('collections-publiques.index');
+        Route::get('collections-publiques/{collection}', [CollectionPubliqueController::class, 'show'])->whereNumber('collection')->name('collections-publiques.show');
+        Route::get('pages-populaires', PagesPopulairesController::class)->name('pages-populaires');
 
-    // Page au hasard (V9, F7), publique. Le chemin exact sera fixé par le contrat d'API commun.
-    Route::get('hasard', HasardController::class)->name('hasard');
+        // Lecture publique (V1, B1). Une adresse ne contient pas de « / » : le paramètre par défaut ([^/]+) suffit.
+        // Le chemin exact sera fixé par le contrat d'API commun.
+        Route::apiResource('pages', PageController::class)
+            ->only('show')
+            ->parameters(['pages' => 'adresse']);
+
+        // Recherche publique (V4, V5, V6, B2). POST plutôt que GET : un texte de 3 200 caractères accentués,
+        // encodé dans l'URL, dépasserait la limite de longueur de beaucoup de serveurs. Rien n'est enregistré : 200.
+        // Le chemin exact sera fixé par le contrat d'API commun.
+        Route::post('recherche', RechercheController::class)->name('recherche');
+
+        // Identité publique (B6) : identifiant, nom, description, empreinte de la clé (jamais la clé).
+        // Le chemin exact sera fixé par le contrat d'API commun.
+        Route::get('identite', IdentiteController::class)->name('identite');
+
+        // Page au hasard (V9, F7), publique. Le chemin exact sera fixé par le contrat d'API commun.
+        Route::get('hasard', HasardController::class)->name('hasard');
+    });
 });

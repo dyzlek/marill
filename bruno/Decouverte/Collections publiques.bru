@@ -1,0 +1,21 @@
+meta {
+  name: Collections publiques
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/collections-publiques
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("200 sans jeton", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
