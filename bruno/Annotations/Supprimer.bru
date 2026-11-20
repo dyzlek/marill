@@ -1,0 +1,25 @@
+meta {
+  name: Supprimer
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/api/annotations/{{annotationId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("204", function () {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

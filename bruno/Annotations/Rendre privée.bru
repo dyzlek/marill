@@ -1,0 +1,32 @@
+meta {
+  name: Rendre privée
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/api/annotations/{{annotationId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jeton}}
+}
+
+headers {
+  Accept: application/json
+}
+
+body:json {
+  {
+    "est_publique": false
+  }
+}
+
+tests {
+  test("200, privée", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().data.est_publique).to.equal(false);
+  });
+}
