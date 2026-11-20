@@ -19,7 +19,7 @@
 
 ## Reste à faire
 
-Vérifier les textes bannis au moment de la publication ([#35], milestone 3), nettoyer les liens expirés.
+Fait depuis : la vérification des textes bannis à la création ([28](28-textes-bannis.md)) et le nettoyage nocturne des liens expirés ([31](31-entretien.md)).
 
 ## Tests
 

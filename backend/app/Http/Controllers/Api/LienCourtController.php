@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Babel\Moderation;
 use App\Babel\Validateur;
 use App\Exceptions\ErreurApi;
 use App\Http\Controllers\Controller;
@@ -27,7 +28,7 @@ class LienCourtController extends Controller
      * et il expire au bout de 30 jours (config bibliotheque.jours_avant_expiration_lien_visiteur).
      * auth('sanctum') et pas le middleware auth:sanctum : la route accepte aussi les visiteurs.
      */
-    public function store(CreerLienCourtRequest $request, Validateur $validateur): LienCourtResource
+    public function store(CreerLienCourtRequest $request, Validateur $validateur, Moderation $moderation): LienCourtResource
     {
         /** @var User|null $auteur */
         $auteur = auth('sanctum')->user();
@@ -47,6 +48,12 @@ class LienCourtController extends Controller
         }
 
         $this->enregistrerAvecUnSlugLibre($lien);
+
+        // Étapes 3 et 4 de la modération : la page (ou les 410 pages du livre) est lue et comparée aux textes
+        // bannis appliqués. Le passage figure dans la page : la vérification de la page le couvre.
+        if ($lien->adresse !== null) {
+            $moderation->verifierAvantPublication($lien->adresse);
+        }
 
         return new LienCourtResource($lien->load('adresse.bibliotheque', 'collection'));
     }

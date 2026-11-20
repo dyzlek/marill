@@ -41,6 +41,15 @@ Les chemins d'API sont **provisoires** tant que le contrat d'API commun n'est pa
 | 26 | [Statistiques par jour](26-statistiques.md) | #30 | A11 |
 | 27 | [Le contrat d'API commun (en attente)](27-contrat-api-commun.md) | #5 | — |
 
+## Réseau et évaluation (milestones 3 et 4), ce qui ne dépend que de nous
+
+| # | Fiche | Issue | Stories |
+|---|---|---|---|
+| 28 | [Textes bannis](28-textes-bannis.md) | #35 | A5, A6, A7, B5 |
+| 29 | [L'état du réseau dans le back-office](29-etat-du-reseau.md) | #32 (écran) | A9 |
+| 30 | [Documenter l'API en OpenAPI](30-openapi.md) | #38 | — |
+| 31 | [Entretien : liens expirés, avatar, tâches planifiées](31-entretien.md) | — | — |
+
 ## Vérifier soi-même
 
 Dans `backend/` :

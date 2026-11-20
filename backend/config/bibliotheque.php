@@ -21,5 +21,9 @@ return [
 
     // Règle 11 : un lien court créé sans compte expire obligatoirement. Le CDC ne fixe pas la durée :
     // choix du groupe (issue #21), 30 jours.
+    // A6 · B5 : jeton réseau, commun aux dix bibliothèques, remis par la plateforme. Seulement dans le .env,
+    // jamais dans le dépôt ni en base. Vide : la route des textes bannis refuse tout le monde.
+    'jeton_reseau' => env('BABEL_JETON_RESEAU'),
+
     'jours_avant_expiration_lien_visiteur' => (int) env('LIEN_VISITEUR_JOURS', 30),
 ];

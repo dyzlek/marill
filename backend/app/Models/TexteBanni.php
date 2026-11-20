@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StatutTexteBanni;
+use Carbon\CarbonImmutable;
 use Database\Factories\TexteBanniFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -14,6 +15,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * TEXTE_BANNI (règles 16 à 18) : le texte en clair et normalisé (pour le chercher),
  * son empreinte (pour éviter les doublons), sa bibliothèque d'origine et la décision locale.
+ *
+ * @property int $id
+ * @property string $texte
+ * @property string $empreinte
+ * @property string|null $motif
+ * @property int $origine_id
+ * @property StatutTexteBanni $statut
+ * @property CarbonImmutable|null $decide_le
  */
 #[Table('textes_bannis')] // Laravel devinerait « texte_bannis »
 #[Fillable(['texte', 'empreinte', 'motif', 'origine_id'])]

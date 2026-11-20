@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "but-mmi-beziers/babel-moteur": "^1.0",
+        "dedoc/scramble": "^0.13.55",
         "filament/filament": "^5.0",
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",

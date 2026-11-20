@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Babel\Moderation;
 use App\Babel\Validateur;
 use App\Exceptions\ErreurApi;
 use App\Http\Controllers\Controller;
@@ -42,7 +43,7 @@ class AnnotationController extends Controller
     }
 
     /** M6 : annoter une page (d'ici, ou d'ailleurs comme un marque-page, M13). 201. */
-    public function store(AnnoterRequest $request, Validateur $validateur): AnnotationResource
+    public function store(AnnoterRequest $request, Validateur $validateur, Moderation $moderation): AnnotationResource
     {
         $adresse = $request->string('adresse')->toString();
 
@@ -63,6 +64,11 @@ class AnnotationController extends Controller
             'est_publique' => $request->boolean('est_publique'),
         ]);
 
+        // Étape 3 de la modération : publier, c'est faire vérifier la page visée contre les textes bannis.
+        if ($annotation->est_publique) {
+            $moderation->verifierAvantPublication($annotation->adresse);
+        }
+
         return new AnnotationResource($annotation->load('adresse.bibliotheque'));
     }
 
@@ -77,9 +83,13 @@ class AnnotationController extends Controller
      * (masque_le n'est pas modifiable ici) : la réécrire ne la fait pas réapparaître.
      */
     #[Authorize('update', 'annotation')]
-    public function update(ModifierAnnotationRequest $request, Annotation $annotation): AnnotationResource
+    public function update(ModifierAnnotationRequest $request, Annotation $annotation, Moderation $moderation): AnnotationResource
     {
         $annotation->update($request->validated());
+
+        if ($annotation->est_publique) { // rendue publique ou réécrite en public : on revérifie la page
+            $moderation->verifierAvantPublication($annotation->load('adresse')->adresse);
+        }
 
         return new AnnotationResource($annotation->load('adresse.bibliotheque'));
     }

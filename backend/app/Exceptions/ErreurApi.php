@@ -45,6 +45,8 @@ final class ErreurApi extends Exception
         'ERR_LINK_HIDDEN' => 410,
         // Signalements (issue #22). Un membre ne signale qu'une fois le même contenu (choix du groupe).
         'ERR_ALREADY_REPORTED' => 409,
+        // Textes bannis (issue #35). Jeton réseau absent ou faux sur la route des textes bannis (B5).
+        'ERR_INVALID_NETWORK_TOKEN' => 401,
     ];
 
     /** @param  list<array{code: string, champ: ?string, message: string}>  $erreurs */

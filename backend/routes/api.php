@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PagesPopulairesController;
 use App\Http\Controllers\Api\RechercheController;
 use App\Http\Controllers\Api\SignalementController;
+use App\Http\Controllers\Api\TextesBannisReseauController;
 use App\Http\Controllers\Api\UtilisateurCourantController;
 use App\Http\Controllers\Api\VoteController;
 use Illuminate\Support\Facades\Route;
@@ -104,6 +105,10 @@ Route::name('api.')->group(function () {
         // Identité publique (B6) : identifiant, nom, description, empreinte de la clé (jamais la clé).
         // Le chemin exact sera fixé par le contrat d'API commun.
         Route::get('identite', IdentiteController::class)->name('identite');
+
+        // A6 · B5 : nos textes bannis, pour les seules bibliothèques du réseau (jeton réseau, middleware sur
+        // le contrôleur). La seule route publique qui exige un jeton. Chemin provisoire (contrat commun).
+        Route::get('reseau/textes-bannis', TextesBannisReseauController::class)->name('reseau.textes-bannis');
 
         // Page au hasard (V9, F7), publique. Le chemin exact sera fixé par le contrat d'API commun.
         Route::get('hasard', HasardController::class)->name('hasard');

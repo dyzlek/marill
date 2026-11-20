@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Babel\Moderation;
 use App\Babel\Validateur;
 use App\Exceptions\ErreurApi;
 use App\Http\Controllers\Controller;
@@ -25,8 +26,8 @@ use Illuminate\Support\Facades\DB;
  * Collections du membre (M4, M5, M13, règle 8) : créer, renommer, rendre publique, supprimer,
  * ranger des pages dans l'ordre voulu. Réservées aux membres connectés (session du front ou jeton).
  *
- * Pas encore fait : la vérification des textes bannis quand une page arrive dans une collection
- * publique (modération, milestone 3, issue #35).
+ * Textes bannis (#35) : une page qui arrive dans une collection publique, ou une collection qui devient
+ * publique, est vérifiée (App\Babel\Moderation).
  */
 #[Middleware('auth:sanctum')]
 class CollectionController extends Controller
@@ -63,9 +64,10 @@ class CollectionController extends Controller
 
     /** M4 renommer, M5 rendre publique ou privée. */
     #[Authorize('update', 'collection')]
-    public function update(ModifierCollectionRequest $request, Collection $collection): CollectionResource
+    public function update(ModifierCollectionRequest $request, Collection $collection, Moderation $moderation): CollectionResource
     {
         $collection->update($request->validated());
+        $this->verifierSiPublique($collection, $moderation);
 
         return new CollectionResource($collection->load('pages.bibliotheque'));
     }
@@ -84,7 +86,7 @@ class CollectionController extends Controller
 
     /** M4 · M13 : ajouter une page (d'ici ou d'ailleurs) à la fin. 200 avec la collection : on la modifie, on ne crée pas de ressource adressable. */
     #[Authorize('update', 'collection')]
-    public function ajouterPage(AjouterPageRequest $request, Collection $collection, Validateur $validateur): CollectionResource
+    public function ajouterPage(AjouterPageRequest $request, Collection $collection, Validateur $validateur, Moderation $moderation): CollectionResource
     {
         $page = $this->enregistrerPage(
             $validateur,
@@ -100,6 +102,10 @@ class CollectionController extends Controller
             $collection->touch(); // la collection est modifiée : updated_at avance
         });
 
+        if ($collection->est_publique) {
+            $moderation->verifierAvantPublication($page);
+        }
+
         return new CollectionResource($collection->load('pages.bibliotheque'));
     }
 
@@ -108,7 +114,7 @@ class CollectionController extends Controller
      * l'ancienne. Positions 1, 2, 3… sans trou. Une même page peut revenir deux fois (règle 8).
      */
     #[Authorize('update', 'collection')]
-    public function rangerPages(RangerPagesRequest $request, Collection $collection, Validateur $validateur): CollectionResource
+    public function rangerPages(RangerPagesRequest $request, Collection $collection, Validateur $validateur, Moderation $moderation): CollectionResource
     {
         /** @var list<array{adresse: string, bibliotheque?: string|null}> $demandees */
         $demandees = $request->validated('pages');
@@ -126,8 +132,23 @@ class CollectionController extends Controller
             }
             $collection->touch();
         });
+        $this->verifierSiPublique($collection, $moderation);
 
         return new CollectionResource($collection->load('pages.bibliotheque'));
+    }
+
+    /**
+     * Étape 3 de la modération : une collection publique est publiée, chacune de ses pages est vérifiée
+     * contre les textes bannis. Une page marquée disparaît de la lecture publique, le reste reste visible.
+     */
+    private function verifierSiPublique(Collection $collection, Moderation $moderation): void
+    {
+        if (! $collection->est_publique) {
+            return;
+        }
+        foreach ($collection->pages()->with('bibliotheque')->get()->unique('id') as $page) {
+            $moderation->verifier($page);
+        }
     }
 
     /**

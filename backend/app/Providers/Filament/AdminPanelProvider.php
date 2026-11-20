@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\AvatarInitiales;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin') // back-office sur /admin, réservé à l'admin : User::canAccessPanel()
             ->login() // connexion propre au back-office, même table users, même mot de passe
+            ->defaultAvatarProvider(AvatarInitiales::class) // initiales dessinées ici, pas chez ui-avatars.com
             ->colors([
                 'primary' => Color::Amber,
             ])

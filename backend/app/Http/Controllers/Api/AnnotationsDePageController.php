@@ -36,8 +36,12 @@ class AnnotationsDePageController extends Controller
         // la route reste ouverte aux visiteurs, mais reconnaît un membre s'il y en a un.
         $lecteur = auth('sanctum')->user();
 
+        // Règle 18 : une page marquée d'un texte banni appliqué reste lisible, mais ce qui est publié vers
+        // elle n'est plus montré. Adresse inconnue ou marquée : aucune annotation (id 0 ne désigne rien).
+        $visible = $page !== null && $page->texte_banni_id === null;
+
         $annotations = Annotation::query()
-            ->where('adresse_id', $page->id ?? 0)
+            ->where('adresse_id', $visible ? $page->id : 0)
             ->where('est_publique', true)
             ->whereNull('masque_le') // règle 14 : une annotation masquée n'est plus montrée
             ->nonSignalesPar($lecteur instanceof User ? $lecteur : null)

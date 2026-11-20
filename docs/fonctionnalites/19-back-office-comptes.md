@@ -24,7 +24,7 @@
 
 ## À savoir
 
-L'avatar par défaut de Filament (ui-avatars.com) envoie le pseudo de l'admin à un service extérieur pour dessiner ses initiales. À remplacer par un avatar local avant la mise en ligne, si le groupe le juge utile.
+L'avatar par défaut de Filament (ui-avatars.com) envoyait le pseudo de l'admin à un service extérieur. Il est remplacé par un avatar dessiné ici ([31](31-entretien.md)).
 
 ## Tests
 
